@@ -1218,7 +1218,10 @@ class LogPage:
 						if val == '' or val is None:
 							val = None
 						else:
-							val = float(val)
+							try:
+								val = float(val)
+							except:
+								val = None
 						self.workouts[n]['sets'][0][cat] = val
 						self.workouts[n]['sets'][0][cat + '_unit'] = unit
 					else:
