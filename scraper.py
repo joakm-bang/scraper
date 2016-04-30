@@ -418,8 +418,6 @@ class database:
 				return obj.execute()
 			except Exception as e:
 				print('Database error:\t{0}').format(str(e))
-				#****  Remove this **********
-				raise # <-- Remove me *******
 				with open(settings.errorlog, 'ab') as errorOut:
 					errorOut.write(','.join((ctime(),str(e))))
 				try: 
