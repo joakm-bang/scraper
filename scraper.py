@@ -52,7 +52,7 @@ class database:
 	def __init__(self, dbconfig, connect=True):
 		self.dbconfig = dbconfig
 		self.connected = False
-		self.alivechk = datetime.now()- timedelta(minutes=30)
+		self.alivechk = datetime.now() - timedelta(minutes=30)
 		if connect:
 			self.connect()
     
@@ -94,7 +94,7 @@ class database:
 	
 	
 	#insert table
-	def insertTable(self, table, cols_types_defaults, pkey=0, debug=False):
+	def insertTable(self, table, cols_types_defaults, pkey=0, debug=False, showError=True):
 		
 		class Dummy:			
 			def execute(self):				
@@ -413,8 +413,8 @@ class database:
 			try:
 				if (self.con.closed > 0):
 					self.connect()
-				#obj.con = self.con
-				#obj.cur = self.cur
+				obj.con = self.con
+				obj.cur = self.cur
 				return obj.execute()
 			except Exception as e:
 				print('Database error:\t{0}').format(str(e))
@@ -1314,8 +1314,8 @@ def setuptables():
 		db.insertTable('sets', [('setid', 'SERIAL'), ('exid', 'INTEGER'), ('setnumber', 'INTEGER'), ('rep', 'INTEGER'), ('weight', 'REAL'), ('hour', 'INTEGER'), ('min', 'INTEGER'), ('sec', 'INTEGER'), ('totalexseconds', 'INTEGER'), ('distance', 'REAL'), ('speed', 'REAL'), ('lap_rep', 'REAL'), ('calorie', 'REAL'), ('distance_unit', 'TEXT'), ('speed_unit', 'TEXT'), ('lap_rep_unit', 'TEXT'), ('calorie_unit', 'TEXT')] , pkey=0, showError=True)
 	if 'notes' not in tables:
 		db.insertTable('notes', [('noteid', 'SERIAL'), ('logid', 'INTEGER'), ('note', 'TEXT')] , pkey=0, showError=True)
-	if 'alive' not in tables:
-		db.insertTable('alive', [('computer', 'TEXT'), ('activity', 'TIMESTAMP')] , pkey=0, showError=True)
+	#if 'alive' not in tables:
+		#db.insertTable('alive', [('computer', 'TEXT'), ('activity', 'TIMESTAMP')] , pkey=0, showError=True)
 
 	computers = heroku.getValues('computer_name', 'monitor_computer')
 	if settings.computer not in computers:
