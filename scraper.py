@@ -1319,7 +1319,7 @@ def setuptables():
 
 	computers = heroku.getValues('computer_name', 'monitor_computer')
 	if settings.computer not in computers:
-		heroku.write2dbunsafe({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
+		heroku.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
 setuptables()
 
 
