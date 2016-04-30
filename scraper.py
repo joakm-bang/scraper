@@ -49,21 +49,16 @@ class database:
 	""""""
 	
 	#----------------------------------------------------------------------
-	def __init__(self, dbconfig):
+	def __init__(self, dbconfig, connect=True):
 		self.dbconfig = dbconfig
 		self.connected = False
 		self.alivechk = datetime.now()- timedelta(minutes=30)
+		if connect:
+			self.connect()
     
 	#connect to database
 	def connect(self):
-		config = dict() #defaults
-		#for k in self.dbconfig.keys():
-			#config[k] = self.dbconfig[k]
-		#database = self.dbconfig[u'database']
-		#host = self.dbconfig[u'host']
-		#user = self.dbconfig[u'user']
-		#password = self.dbconfig[u'password']
-		#port = self.dbconfig[u'port']		
+		config = dict()	
 		self.con = psycopg2.connect("dbname={0} user={1} password={2} host={3} port={4}".format(self.dbconfig[u'database'], self.dbconfig[u'user'], self.dbconfig[u'password'], self.dbconfig[u'host'], self.dbconfig[u'port']))
 		self.cur = self.con.cursor()
 		self.connected = True
@@ -124,9 +119,33 @@ class database:
 		dummy.con = self.con
 		dummy.cur = self.cur
 		if not debug:
-			self.timeoutHandler(dummy)
+			return self.timeoutHandler(dummy)
 		else:
-			dummy.execute()
+			return dummy.execute()
+
+	#insert column
+	def insertColumn(self, table, col, varType = 'TEXT', default = u''):
+		class Dummy:			
+			def execute(self):
+				if self.col != self.safeName(self.col):
+					raise DBerror('Tried to insert unsafe column name')
+				if self.default != u'':
+					self.default = u' DEFAULT ' + self.default
+				self.cur.execute('ALTER TABLE {0} ADD COLUMN {1} {2} {3}'.format(self.table, self.col, self.varType, self.default))
+				self.con.commit()
+				return True
+		dummy = Dummy()
+		dummy.table = table
+		dummy.col = col
+		dummy.varType = varType	
+		dummy.default = default
+		dummy.safeName = self.safeName		
+		dummy.con = self.con
+		dummy.cur = self.cur
+		if not debug:
+			return self.timeoutHandler(dummy)
+		else:
+			return dummy.execute()	
 
 	#get existing column names
 	def getColumns(self, thisTable, thisScema = None, debug = False):
@@ -146,9 +165,9 @@ class database:
 		dummy.con = self.con
 		dummy.cur = self.cur		
 		if not debug:
-			self.timeoutHandler(dummy)
+			return self.timeoutHandler(dummy)
 		else:
-			dummy.execute()		
+			return dummy.execute()		
 
 
 
@@ -163,8 +182,10 @@ class database:
 					self.cur.execute("UPDATE {0} SET {1} = '{2}' WHERE {3} = {4}".format(self.thisTable, self.changeVar, newVal, self.selVar, unicode(self.targetVal)))
 					self.con.commit()
 				else:
-					self.cur.execute("UPDATE {0} SET {1} = {2} WHERE {3} = '{4}'".format(self.thisTable, self.changeVar, self.selVar, self.targetVal, self.safeVal(newVal)))
+					self.cur.execute("UPDATE {0} SET {1} = '{2}' WHERE {3} = '{4}'".format(self.thisTable, self.changeVar, self.safeVal(newVal), self.selVar, self.targetVal))
+					#"UPDATE {0} SET {1} = '{2}' WHERE {3} = '{4}'".format(dummy.thisTable, dummy.changeVar, dummy.safeVal(newVal), dummy.selVar, dummy.targetVal)
 					self.con.commit()
+				return True
 		dummy = Dummy()
 		dummy.thisTable = thisTable
 		dummy.changeVar = changeVar
@@ -175,9 +196,9 @@ class database:
 		dummy.con = self.con
 		dummy.cur = self.cur		
 		if not debug:
-			self.timeoutHandler(dummy)
+			return self.timeoutHandler(dummy)
 		else:
-			dummy.execute()
+			return dummy.execute()
 		
 	
 	#write to database
@@ -221,22 +242,23 @@ class database:
 				#self.cur.execute(u'INSERT INTO ' + self.thisTable + u' (' + keyStr.strip(u',') + u') VALUES (' + Ss.strip(u',') + u')', tuple(inserts))
 				self.cur.execute(u'INSERT INTO {0} ({1}) VALUES ({2})'.format(self.thisTable, keyStr.strip(u','), Ss.strip(u',')), tuple(inserts))
 				self.con.commit()
+				return True
 		
 		dummy = Dummy()
 		dummy.thisTable = thisTable
 		dummy.thisDic = thisDic
 		dummy.useTimeStamp = useTimeStamp
 		dummy.insertKeys = insertKeys
-		dummy.safeName = safeName
+		dummy.safeName = self.safeName
 		dummy.insertColumn = self.insertColumn
 		dummy.con = self.con
 		dummy.cur = self.cur		
-		dummy.getColumns = getColumns
-		dummy.safeVal = safeVal
+		dummy.getColumns = self.getColumns
+		dummy.safeVal = self.safeVal
 		if not debug:
-			self.timeoutHandler(dummy)
+			return self.timeoutHandler(dummy)
 		else:
-			dummy.execute()
+			return dummy.execute()
 	
 	
 			
@@ -252,9 +274,9 @@ class database:
 		dummy.thisTable = thisTable
 		dummy.cur = self.cur		
 		if not debug:
-			self.timeoutHandler(dummy)
+			return self.timeoutHandler(dummy)
 		else:
-			dummy.execute()	
+			return dummy.execute()	
 
 	
 	def listTables(self, schema = 'public', debug=False):
@@ -270,9 +292,9 @@ class database:
 		dummy.schema = schema
 		dummy.cur = self.cur		
 		if not debug:
-			self.timeoutHandler(dummy)
+			return self.timeoutHandler(dummy)
 		else:
-			dummy.execute()		
+			return dummy.execute()		
 	
 	
 	#drop table
@@ -281,14 +303,15 @@ class database:
 			def execute(self):		
 				self.cur.execute(u'DROP TABLE {0}'.format(self.table))
 				self.con.commit()
+				return True
 		dummy = Dummy()
 		dummy.table = table
 		dummy.con = self.con
 		dummy.cur = self.cur			
 		if not debug:
-			self.timeoutHandler(dummy)
+			return self.timeoutHandler(dummy)
 		else:
-			dummy.execute()
+			return dummy.execute()
 	
 
 	
@@ -303,6 +326,7 @@ class database:
 				insert_query = 'insert into {0} ({1}) values {2}'.format(self.table, cs, ss)		
 				self.cur.execute(insert_query, values)
 				self.con.commit()
+				return True
 		dummy = Dummy()
 		dummy.table = table
 		dummy.cols = cols
@@ -310,38 +334,94 @@ class database:
 		dummy.con = self.con
 		dummy.cur = self.cur
 		if not debug:
-			self.timeoutHandler(dummy)
+			return self.timeoutHandler(dummy)
 		else:
-			dummy.execute()	
+			return dummy.execute()	
 
 
+	
+	#Read column values
+	def getValues(self, thisCol, thisTable, unique = False, sels = [], debug=False):
+		class Dummy:
+			def execute(self):		
+				def listMe(x):
+					if isinstance(x, list) or isinstance(x, tuple):
+						return(x)
+					else:
+						return([x])
+				
+				selStr = 'WHERE '*(len(self.sels) > 0)
+				for i, sel in enumerate(listMe(self.sels)):
+					isString = (isinstance(sel[2], str) or isinstance(sel[2], unicode))
+					selStr = selStr + "{0} {1} {2} {3} {4} {5}".format(sel[0], sel[1], "'"*isString, str(sel[2]), "'"*isString, ' AND '*(i<len(self.sels)-1))
+				
+				self.thisCol = listMe(self.thisCol)	
+				ncols = len(self.thisCol)
+				if ncols > 1:
+					self.thisCol = ', '.join(self.thisCol)
+				else:
+					self.thisCol = self.thisCol[0]
+					
+				sql = 'SELECT {0} {1} FROM {2} {3}'.format('DISTINCT'*unique, self.thisCol, self.thisTable, selStr)
+				
+				self.cur.execute(sql)
+	
+				x = self.cur.fetchall()
+				
+				if ncols == 1:
+					y = []
+					for xi in x:
+						y.append(xi[0])
+					return(y)
+				else:
+					return(x)
+				
+		dummy = Dummy()
+		dummy.thisCol = thisCol
+		dummy.thisTable = thisTable
+		dummy.unique = unique
+		dummy.sels = sels
+		dummy.con = self.con
+		dummy.cur = self.cur
+		if not debug:
+			return self.timeoutHandler(dummy)
+		else:
+			return dummy.execute()		
+	
+	
 	#tell the database that you're alive
 	def imStillAlive(self, debug=False):
 		class Dummy:
 			def execute(self):
 				self.updateField('monitor_computer', 'activity', 'now', 'computer_name', settings.computer)
+				return True
 
 		if (datetime.now() - self.alivechk).total_seconds() > settings.chkFreq:
 			self.alivechk = datetime.now()
 			dummy = Dummy()
 			dummy.updateField = self.updateField
 			if not debug:
-				self.timeoutHandler(dummy)
+				return self.timeoutHandler(dummy)
 			else:
-				dummy.execute()	
+				return dummy.execute()
 
 
 	def timeoutHandler(self, obj):
 		n = 0
-		keepgoing = True
-		while keepgoing and (n<11):
+		while (n < 11):
 			n = n + 1
 			try:
 				if (self.con.closed > 0):
 					self.connect()
-				obj.execute()
+				#obj.con = self.con
+				#obj.cur = self.cur
+				return obj.execute()
 			except Exception as e:
-				print('Database error:\t{0}').format(e)
+				print('Database error:\t{0}').format(str(e))
+				#****  Remove this **********
+				raise # <-- Remove me *******
+				with open(settings.errorlog, 'ab') as errorOut:
+					errorOut.write(','.join((ctime(),str(e))))
 				try: 
 					self.con.rollback()
 				except:
@@ -350,7 +430,7 @@ class database:
 					self.close()
 				except:
 					pass
-				print('Iteration {0}. Sleeping for 1 minute.'.fromat(str(n)))
+				print('Iteration {0}. Sleeping for 1 minute.'.format(str(n)))
 				sleep(60)
 				try:
 					try:
@@ -359,7 +439,8 @@ class database:
 						pass
 					self.connect()
 				except:
-					pass				
+					pass
+		raise DBerror('Fatal databse error.')
 		
 #This huy queues up users
 class userqueue:
@@ -368,7 +449,8 @@ class userqueue:
 	#----------------------------------------------------------------------
 	def __init__(self, k=1000, maxids=3946679):
 		# get users already in list
-		self.done = set(db.getColVal('userid', 'users'))
+		#self.done = set(db.getColVal('userid', 'users'))
+		self.done = set(db.getValues('userid', 'users'))
 		self.queue = []
 		self.k = k
 		self.maxids = maxids
@@ -419,8 +501,10 @@ class userqueue:
 		self.queue = sample(dmp,min(k,len(dmp)))
 		
 	def fillFriends(self, even=None):
-		dmp = list(set(db.getColVal('user2', 'friends')).difference(self.done))
-		dmp = self.keepEven(list(set(db.getColVal('user2', 'friends')).difference(self.done)), even)
+		#dmp = list(set(db.getColVal('user2', 'friends')).difference(self.done))
+		#dmp = self.keepEven(list(set(db.getColVal('user2', 'friends')).difference(self.done)), even)
+		dmp = list(set(db.getValues('user2', 'friends')).difference(self.done))
+		dmp = self.keepEven(list(set(db.getValues('user2', 'friends')).difference(self.done)), even)
 		self.queue = self.queue + dmp
 			
 		if self.isempty():
@@ -499,7 +583,7 @@ class browser:
 	#----------------------------------------------------------------------
 	def __init__(self, username=None,password=None,delayLambda=7, path=''):
 		
-		self.last = time()
+		self.t = [time(), time(), time()]
 		self.path = path
 		self.errorlog = settings.errorlog
 		self.delayLambda = delayLambda
@@ -535,13 +619,14 @@ class browser:
 		
 	#----------------------------------------------------------------------
 	# Don't hammer the server
-	def delay(self, minDelay=2):
-		deltaT = time() - self.last
-		self.last = time()
+	def delay(self, minDelay=0.5, printDelay=True):
+		delta = (self.t[1]-self.t[0], self.t[2]-self.t[1], time() - self.t[2])
+		self.t[0] = time()
 		randomDelay = poisson(self.delayLambda)
-		napTime = max(randomDelay - deltaT,minDelay)
+		napTime = max(randomDelay - delta[2],minDelay)
 		if napTime > 0:
-			print('Delay:\t' + str(naptime) + ' seconds.')
+			if printDelay:
+				print('Total delay:\t' + str(round(sum(delta),2)) + ' seconds\t(' + str(round(delta[0] + delta[2],2)) + ' nap [' + str(round(delta[2],2)) + ' code + ' + str(round(delta[0],2)) + ' extra] and ' + str(round(delta[1],2)) + ' browser).')
 			sleep(napTime)	
 
 	#----------------------------------------------------------------------
@@ -567,7 +652,6 @@ class browser:
 	#----------------------------------------------------------------------
 	#Hit the webpage
 	def tryPage(self, targetURL, doForm=None, maxtries=10, napTime=90, mess='Error while opening page', soup=False, noDelay=False):
-		self.delay()
 		goon = True
 		tryCount = 0
 		while goon == True and tryCount < maxtries:
@@ -578,9 +662,11 @@ class browser:
 					if settings.bannedIP == self.ip:
 						print('Proxy is down.')
 						raise proxyerror()
-				if not (noDelay and (tryCount == 1)):
+				if not noDelay:
 					self.delay()
+					self.t[1] = time()
 				self.br.open(targetURL)
+				self.t[2] = time()
 				if isinstance(doForm, int):
 					self.br.select_form(nr = doForm)
 				elif isinstance(doForm, str) or isinstance(doForm, unicode):
@@ -651,7 +737,7 @@ class Settings:
 		self.bannedIP = None
 		self.runlocal = False
 		self.runLAN = False
-		self.delayLambda = 5
+		self.delayLambda = 6
 		self.scrapeUsers = False
 		self.scrapeMonths = False
 		self.scrapeLogs = False
@@ -663,11 +749,11 @@ class Settings:
 		if self.computer == 'kontoret':  # Kontoret (months, even)
 			self.scrapeMonths = True
 			self.onlyEven = True
-			self.delayLambda = 11
+			self.delayLambda = 12
 		elif self.computer == 'server':   #Server (users, even)
 			self.scrapeUsers = True
 			self.onlyEven = True
-			self.delayLambda = 11
+			self.delayLambda = 12
 		elif self.computer == 'hemma':   # Hemma (months, uneven)
 			self.runlocal = True
 			self.scrapeMonths = True
@@ -856,7 +942,8 @@ class ProfilePage:
 		
 		if addFriends:
 			# get current friends and look for new ones
-			self.oldfriends = set(db.getColVal('user2', 'friends', 'user1', str(user)))
+			#self.oldfriends = set(db.getColVal('user2', 'friends', 'user1', str(user)))
+			self.oldfriends = set(db.getValues('user2', 'friends', sels=[('user1', '=', str(user))]))
 			friends = []
 			friend_divs = soup.findAll('div', {'class':'friendCell2'})
 			for friend_div in friend_divs:
@@ -1231,7 +1318,7 @@ def setuptables():
 		db.insertTable('notes', [('noteid', 'SERIAL'), ('logid', 'INTEGER'), ('note', 'TEXT')] , pkey=0, showError=True)
 	if 'alive' not in tables:
 		db.insertTable('alive', [('computer', 'TEXT'), ('activity', 'TIMESTAMP')] , pkey=0, showError=True)
-	heroku.connect()
+
 	computers = heroku.getValues('computer_name', 'monitor_computer')
 	if settings.computer not in computers:
 		heroku.write2dbunsafe({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
