@@ -525,7 +525,10 @@ class database:
 				except:
 					pass
 		raise DBerror('Fatal databse error.')
-		
+
+	def setNoteCounter(self):
+		dmp = self.getValues('noteid', tables.notes)
+		settings.note_inc = max(dmp) + 1
 #This huy queues up users
 class userqueue:
 	""""""
@@ -1084,9 +1087,12 @@ class LogPage:
 			db.write2db(self.summary, tables.logsummary)
 		if notes and self.notes != {}:
 			for k in self.notes.keys():
+				settings.note_inc = settings.note_inc + 1
 				dmp = dict()
 				dmp['logid_id'] = self.logid
 				dmp['note'] = self.notes[k]
+				dmp['noteid'] = settings.note_inc
+				dmp['db_timestamp'] = 'now'
 				db.write2db(dmp, tables.notes)
 		
 		for k in self.workouts.keys():
@@ -1346,7 +1352,7 @@ br.login()
 
 # set up tables
 tables = Tables()
-
+db.setNoteCounter()
 
 # ** Get list of members ** 
 if settings.scrapeUsers:
