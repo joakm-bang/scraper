@@ -82,9 +82,9 @@ class Settings:
 			self.onlyEven = True
 			self.delayLambda = 12
 		elif self.computer == 'hemma':   # Hemma (months, uneven)
-			self.scrapeLogs = True
+			#self.scrapeLogs = True
 			self.runlocal = True
-			#self.scrapeMonths = True
+			self.scrapeMonths = True
 			self.onlyEven = True
 		elif self.computer == 'toshiban':   # Toshiban (users, uneven)
 			self.scrapeUsers = True
