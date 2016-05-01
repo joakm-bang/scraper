@@ -60,7 +60,7 @@ class Settings:
 	#----------------------------------------------------------------------
 	def __init__(self):
 		#Defaults
-		self.debug = True
+		self.debug = False
 		self.bannedIP = None
 		self.runlocal = False
 		self.runLAN = False
@@ -82,7 +82,6 @@ class Settings:
 			self.onlyEven = True
 			self.delayLambda = 12
 		elif self.computer == 'hemma':   # Hemma (months, uneven)
-			#self.scrapeLogs = True
 			self.runlocal = True
 			self.scrapeMonths = True
 			self.onlyEven = True
