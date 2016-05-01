@@ -45,6 +45,92 @@ class DBerror(Exception):
 			errorOut.write(unicode(ctime()) + u' \t' + value + '\n')
 
 ########################################################################
+
+
+class Settings:
+	""""""
+	
+	class settingsError(Exception):
+		def __init__(self, value='Something went wrong while setting the settings. Probably a bad dropbox path.'):
+			print(value)
+			with open(settings.errorlog, 'ab') as errorOut:
+
+				errorOut.write(unicode(ctime()) + u' \t' + value + '\n')	
+	
+	#----------------------------------------------------------------------
+	def __init__(self):
+		#Defaults
+		self.debug = True
+		self.bannedIP = None
+		self.runlocal = False
+		self.runLAN = False
+		self.delayLambda = 6
+		self.scrapeUsers = False
+		self.scrapeMonths = False
+		self.scrapeLogs = False
+		self.onlyEven = None
+		self.chkFreq = 60*5
+		# machine specific variables
+		self.dropboxPath = environ['DROPBOX_PATH']
+		self.computer = environ['COMPUTER_NAME']
+		if self.computer == 'kontoret':  # Kontoret (months, even)
+			self.scrapeMonths = True
+			self.onlyEven = True
+			self.delayLambda = 12
+		elif self.computer == 'server':   #Server (users, even)
+			self.scrapeUsers = True
+			self.onlyEven = True
+			self.delayLambda = 12
+		elif self.computer == 'hemma':   # Hemma (months, uneven)
+			self.scrapeLogs = True
+			self.runlocal = True
+			#self.scrapeMonths = True
+			self.onlyEven = True
+		elif self.computer == 'toshiban':   # Toshiban (users, uneven)
+			self.scrapeUsers = True
+			self.onlyEven = False
+		elif self.computer == 'litenvit':   # Liten vit (logs, uneven)
+			self.runLAN = True
+			self.scrapeLogs = True
+			self.onlyEven = False
+			self.bannedIP = '60.241.126.187'
+		elif self.computer == 'garderoben':   # Garderoben (logs, even)
+			self.runLAN = True
+			self.scrapeLogs = True
+			self.onlyEven = True
+			self.bannedIP = '60.241.126.187'
+		else:
+			raise settingsError()
+		
+		self.errorlog = self.dropboxPath + 'Data Incubator/Project/jefit/allusers/errorlogs/' + self.computer + datetime.ctime(datetime.now()).replace(' ', '_').replace(':','_') + '.txt'
+		
+		#database connection
+		self.setDatabase()
+	
+	def setDatabase(self):
+		self.dbconfig = dict()
+		self.dbconfig[u'database'] = u'jefit'
+		self.dbconfig[u'user'] = environ['PG_USER']
+		self.dbconfig[u'password'] = environ['PG_PASS']
+		self.dbconfig[u'port'] = 5432
+		if self.runlocal:
+			self.dbconfig[u'host'] = 'localhost'
+		elif self.runLAN:
+			self.dbconfig[u'host'] = u'192.168.0.2'
+		else:
+			self.dbconfig[u'host'] = u'60.241.126.187'
+		
+		self.herokuconfig = dict()
+		self.herokuconfig[u'host'] = 'ec2-54-243-196-76.compute-1.amazonaws.com'
+		self.herokuconfig[u'database'] = u'd6rjh7cctk2006'
+		self.herokuconfig[u'user'] = environ['HEROKU_USER']
+		self.herokuconfig[u'password'] = environ['HEROKU_PASS']
+		self.herokuconfig[u'port'] = 5432
+
+
+# get local settings
+settings = Settings()
+
 class database:
 	""""""
 	
@@ -53,6 +139,7 @@ class database:
 		self.dbconfig = dbconfig
 		self.connected = False
 		self.alivechk = datetime.now() - timedelta(minutes=30)
+		self.debug = settings.debug
 		if connect:
 			self.connect()
     
@@ -94,7 +181,7 @@ class database:
 	
 	
 	#insert table
-	def insertTable(self, table, cols_types_defaults, pkey=0, debug=False, showError=True):
+	def insertTable(self, table, cols_types_defaults, pkey=0, debug=settings.debug, showError=True):
 		
 		class Dummy:			
 			def execute(self):				
@@ -124,7 +211,7 @@ class database:
 			return dummy.execute()
 
 	#insert column
-	def insertColumn(self, table, col, varType = 'TEXT', default = u''):
+	def insertColumn(self, table, col, varType = 'TEXT', default = u'', debug=settings.debug):
 		class Dummy:			
 			def execute(self):
 				if self.col != self.safeName(self.col):
@@ -148,7 +235,7 @@ class database:
 			return dummy.execute()	
 
 	#get existing column names
-	def getColumns(self, thisTable, thisScema = None, debug = False):
+	def getColumns(self, thisTable, thisScema = None, debug = settings.debug):
 		
 		class Dummy:
 			def execute(self):
@@ -172,7 +259,7 @@ class database:
 
 
 	#update field in database
-	def updateField(self, thisTable, changeVar, newVal, selVar, targetVal, debug=False):
+	def updateField(self, thisTable, changeVar, newVal, selVar, targetVal, debug=settings.debug):
 		class Dummy:
 			def execute(self):
 				newVal = unicode(self.newVal)
@@ -202,7 +289,7 @@ class database:
 		
 	
 	#write to database
-	def write2db(self, thisDic, thisTable, useTimeStamp = True, insertKeys=False, debug=False):	
+	def write2db(self, thisDic, thisTable, useTimeStamp = True, insertKeys=False, debug=settings.debug):	
 		class Dummy:
 			def execute(self):		
 				def makeUnicode(val):
@@ -264,7 +351,7 @@ class database:
 			
 
 	
-	def listCols(self, thisTable, debug=False):
+	def listCols(self, thisTable, debug=settings.debug):
 		class Dummy:
 			def execute(self):		
 				self.cur.execute("SELECT * FROM " + self.thisTable + " LIMIT 1")
@@ -279,7 +366,7 @@ class database:
 			return dummy.execute()	
 
 	
-	def listTables(self, schema = 'public', debug=False):
+	def listTables(self, schema = 'public', debug=settings.debug):
 		class Dummy:
 			def execute(self):		
 				self.cur.execute("SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema = '{0}'".format(self.schema))
@@ -298,7 +385,7 @@ class database:
 	
 	
 	#drop table
-	def dropTable(self, table):
+	def dropTable(self, table, debug=settings.debug):
 		class Dummy:
 			def execute(self):		
 				self.cur.execute(u'DROP TABLE {0}'.format(self.table))
@@ -316,7 +403,7 @@ class database:
 
 	
 	# insert list of tuples in table
-	def insertMany(self, table, cols, values, debug=False):
+	def insertMany(self, table, cols, values, debug=settings.debug):
 		class Dummy:
 			def execute(self):		
 				if len(self.values) == 0:
@@ -341,7 +428,7 @@ class database:
 
 	
 	#Read column values
-	def getValues(self, thisCol, thisTable, unique = False, sels = [], debug=False):
+	def getValues(self, thisCol, thisTable, unique = False, sels = [], debug=settings.debug):
 		class Dummy:
 			def execute(self):		
 				def listMe(x):
@@ -390,7 +477,7 @@ class database:
 	
 	
 	#tell the database that you're alive
-	def imStillAlive(self, debug=False):
+	def imStillAlive(self, debug=settings.debug):
 		class Dummy:
 			def execute(self):
 				self.updateField('monitor_computer', 'activity', 'now', 'computer_name', settings.computer)
@@ -447,8 +534,7 @@ class userqueue:
 	#----------------------------------------------------------------------
 	def __init__(self, k=1000, maxids=3946679):
 		# get users already in list
-		#self.done = set(db.getColVal('userid', 'users'))
-		self.done = set(db.getValues('userid', 'users'))
+		self.done = set(db.getValues('userid', tables.users))
 		self.queue = []
 		self.k = k
 		self.maxids = maxids
@@ -499,10 +585,10 @@ class userqueue:
 		self.queue = sample(dmp,min(k,len(dmp)))
 		
 	def fillFriends(self, even=None):
-		#dmp = list(set(db.getColVal('user2', 'friends')).difference(self.done))
-		#dmp = self.keepEven(list(set(db.getColVal('user2', 'friends')).difference(self.done)), even)
-		dmp = list(set(db.getValues('user2', 'friends')).difference(self.done))
-		dmp = self.keepEven(list(set(db.getValues('user2', 'friends')).difference(self.done)), even)
+		#dmp = list(set(db.getColVal('user2', tables.friends)).difference(self.done))
+		#dmp = self.keepEven(list(set(db.getColVal('user2', tables.friends)).difference(self.done)), even)
+		dmp = list(set(db.getValues('user2', tables.friends)).difference(self.done))
+		dmp = self.keepEven(list(set(db.getValues('user2', tables.friends)).difference(self.done)), even)
 		self.queue = self.queue + dmp
 			
 		if self.isempty():
@@ -512,8 +598,8 @@ class monthQueue:
 	#----------------------------------------------------------------------
 	def __init__(self, only_new_users=True, onlyEven=None):
 		# get unscraped users already in list
-		self.queue = db.getValues(('userid', 'firstdate'), 'users', sels=[('scraped', '=', False), ('public', '=', True)])
-		self.doneUsers = db.getValues('userid', 'userinfo')
+		self.queue = db.getValues(('userid', 'firstdate'), tables.users, sels=[('scraped', '=', False), ('public', '=', True)])
+		self.doneUsers = db.getValues('userid_id', tables.userinfo)
 		self.only_new_users = only_new_users
 		self.onlyEven = onlyEven
 	
@@ -550,7 +636,7 @@ class logQueue:
 		return self.queue
 
 	def refill(self):
-		dmp = db.getValues(('logid', 'url', 'userid'), 'logs', sels=[('scraped', '=', False)])
+		dmp = db.getValues(('logid', 'url', 'userid_id'), tables.logs, sels=[('scraped', '=', False)])
 		if self.onlyEven is not None:
 			self.queue = []
 			for xi in dmp:
@@ -719,86 +805,6 @@ class browser:
 		
 
 #These are various settings
-class Settings:
-	""""""
-	
-	class settingsError(Exception):
-		def __init__(self, value='Something went wrong while setting the settings. Probably a bad dropbox path.'):
-			print(value)
-			with open(settings.errorlog, 'ab') as errorOut:
-
-				errorOut.write(unicode(ctime()) + u' \t' + value + '\n')	
-	
-	#----------------------------------------------------------------------
-	def __init__(self):
-		#Defaults
-		self.bannedIP = None
-		self.runlocal = False
-		self.runLAN = False
-		self.delayLambda = 6
-		self.scrapeUsers = False
-		self.scrapeMonths = False
-		self.scrapeLogs = False
-		self.onlyEven = None
-		self.chkFreq = 60*5
-		# machine specific variables
-		self.dropboxPath = environ['DROPBOX_PATH']
-		self.computer = environ['COMPUTER_NAME']
-		if self.computer == 'kontoret':  # Kontoret (months, even)
-			self.scrapeMonths = True
-			self.onlyEven = True
-			self.delayLambda = 12
-		elif self.computer == 'server':   #Server (users, even)
-			self.scrapeUsers = True
-			self.onlyEven = True
-			self.delayLambda = 12
-		elif self.computer == 'hemma':   # Hemma (months, uneven)
-			self.runlocal = True
-			self.scrapeMonths = True
-			self.onlyEven = False
-		elif self.computer == 'toshiban':   # Toshiban (users, uneven)
-			self.scrapeUsers = True
-			self.onlyEven = False
-		elif self.computer == 'litenvit':   # Liten vit (logs, uneven)
-			self.runLAN = True
-			self.scrapeLogs = True
-			self.onlyEven = False
-			self.bannedIP = '60.241.126.187'
-		elif self.computer == 'garderoben':   # Garderoben (logs, even)
-			self.runLAN = True
-			self.scrapeLogs = True
-			self.onlyEven = True
-			self.bannedIP = '60.241.126.187'
-		else:
-			raise settingsError()
-		
-		self.errorlog = self.dropboxPath + 'Data Incubator/Project/jefit/allusers/errorlogs/' + self.computer + datetime.ctime(datetime.now()).replace(' ', '_').replace(':','_') + '.txt'
-		
-		#database connection
-		self.setDatabase()
-	
-	def setDatabase(self):
-		self.dbconfig = dict()
-		self.dbconfig[u'database'] = u'jefit'
-		self.dbconfig[u'user'] = environ['PG_USER']
-		self.dbconfig[u'password'] = environ['PG_PASS']
-		self.dbconfig[u'port'] = 5432
-		if self.runlocal:
-			self.dbconfig[u'host'] = 'localhost'
-		elif self.runLAN:
-			self.dbconfig[u'host'] = u'192.168.0.2'
-		else:
-			self.dbconfig[u'host'] = u'60.241.126.187'
-		
-		self.herokuconfig = dict()
-		self.herokuconfig[u'host'] = 'ec2-54-243-196-76.compute-1.amazonaws.com'
-		self.herokuconfig[u'database'] = u'd6rjh7cctk2006'
-		self.herokuconfig[u'user'] = environ['HEROKU_USER']
-		self.herokuconfig[u'password'] = environ['HEROKU_PASS']
-		self.herokuconfig[u'port'] = 5432
-		
-		
-
 class MonthPage:
 	""""""
 	
@@ -845,6 +851,7 @@ class MonthPage:
 			if self.user:
 				self.dbrows = []
 				for link in self.links:
+					#self.dbrows.append((link, datetime.toordinal(datetime.strptime(link[link.rfind('dd=')+3:], '%Y-%m-%d')), False, self.user, None))
 					self.dbrows.append((self.user, link, datetime.toordinal(datetime.strptime(link[link.rfind('dd=')+3:], '%Y-%m-%d'))))
 	
 	def prepare4db(self, firstdate=None, lastdate=None):
@@ -856,7 +863,8 @@ class MonthPage:
 		if firstdate is not None:
 			self.todb['firstdate'] = firstdate
 		if lastdate is not None:			
-			self.todb['lastdate'] = lastdate		
+			self.todb['lastdate'] = lastdate
+			
 		
 class ProfilePage:
 	""""""
@@ -940,8 +948,8 @@ class ProfilePage:
 		
 		if addFriends:
 			# get current friends and look for new ones
-			#self.oldfriends = set(db.getColVal('user2', 'friends', 'user1', str(user)))
-			self.oldfriends = set(db.getValues('user2', 'friends', sels=[('user1', '=', str(user))]))
+			#self.oldfriends = set(db.getColVal('user2', tables.friends, 'user1', str(user)))
+			self.oldfriends = set(db.getValues('user2', tables.friends, sels=[('user1', '=', str(user))]))
 			friends = []
 			friend_divs = soup.findAll('div', {'class':'friendCell2'})
 			for friend_div in friend_divs:
@@ -954,7 +962,7 @@ class ProfilePage:
 	def writeUserInfo(self):
 		#write user info
 		outDict = dict()
-		outDict['userid'] = self.user
+		outDict['userid_id'] = self.user
 		outDict['birthyear'] = self.birthyear
 		outDict['male'] = self.sex
 		outDict['location'] = self.country
@@ -962,14 +970,14 @@ class ProfilePage:
 		if self.firstWO is not None and self.lastWO is not None:
 			outDict['firstworkout'] = datetime.toordinal(self.firstWO)
 			outDict['lastworkout'] = datetime.toordinal(self.lastWO)
-		db.write2db(outDict, 'userinfo')
+		db.write2db(outDict, tables.userinfo)
 
 	def writeNewFriends(self):
 		#add new friends
 		if len(self.newfriends) == 0:
 			return(True)
 		else:
-			db.insertMany('friends', ('user1', 'user2'), self.newfriends)
+			db.insertMany(tables.friends, ('user1', 'user2'), self.newfriends)
 			return(True)
 	
 	
@@ -986,7 +994,7 @@ class ProfilePage:
 		#intially scraped month
 		sdate = firstOfMonth(datetime.fromordinal(scrapeddate))
 		scraped = [sdate]
-		oldscrapes = db.getValues('scrapeddate', 'months', sels=[('userid', '=', self.user)])
+		oldscrapes = db.getValues('scrapeddate', tables.months, sels=[('userid_id', '=', self.user)])
 		friends = set([])
 		links = []
 		
@@ -1070,38 +1078,38 @@ class LogPage:
 	def writeIt(self, stats=True, summary=True, exercises=True, sets=True, notes = True, friends=True):
 
 		if stats and self.bodyStats != {}:
-			self.bodyStats['logid'] = self.logid
-			db.write2db(self.bodyStats, 'bodystats')
+			self.bodyStats['logid_id'] = self.logid
+			db.write2db(self.bodyStats, tables.bodystats)
 		if summary and self.summary != {}:
-			self.summary['logid'] = self.logid
-			db.write2db(self.summary, 'logsummary')
+			self.summary['logid_id'] = self.logid
+			db.write2db(self.summary, tables.logsummary)
 		if notes and self.notes != {}:
 			for k in self.notes.keys():
 				dmp = dict()
-				dmp['logid'] = self.logid
+				dmp['logid_id'] = self.logid
 				dmp['note'] = self.notes[k]
-				db.write2db(dmp, 'notes')
+				db.write2db(dmp, tables.notes)
 		
 		for k in self.workouts.keys():
 			if exercises and self.workouts != {}:
 				ex = self.workouts[k].copy()
 				del ex['sets']
-				ex['logid'] = logid
+				ex['logid_id'] = logid
 				exid = ex['logrowid']
 				ex['exid'] = exid
 				ex['pdate'] = datetime.strptime(ex['date'], "%Y-%m-%d").toordinal()	
-				db.write2db(ex, 'exercises')
+				db.write2db(ex, tables.exercises)
 				if sets and self.workouts[k]['sets'] != {}:
 					for l in self.workouts[k]['sets']:
 						Set = dict()
-						Set['exid'] = exid
+						Set['exid_id'] = exid
 						Set['setnumber'] = l + 1
 						for m in self.workouts[k]['sets'][l].keys():
 							Set[m] = self.workouts[k]['sets'][l][m]
-						db.write2db(Set, 'sets')						
+						db.write2db(Set, tables.sets)						
 
 		if friends and len(self.newfriends) > 0:
-			db.insertMany('friends', ('user1', 'user2'), self.newfriends)
+			db.insertMany(tables.friends, ('user1', 'user2'), self.newfriends)
 
 	def floatMe(self,x):
 		try:
@@ -1267,7 +1275,7 @@ class LogPage:
 		
 	def addNewFriends(self):
 		# get current friends and look for new ones
-		self.oldfriends = set(db.getValues('user2', 'friends', sels = [('user1', '=', str(self.user))]))
+		self.oldfriends = set(db.getValues('user2', tables.friends, sels = [('user1', '=', str(self.user))]))
 		friends = []
 		friend_divs = self.soup.findAll('div', {'class':'friendCell2'})
 		for friend_div in friend_divs:
@@ -1279,13 +1287,56 @@ class LogPage:
 		
 
 
+
+class Tables:
+	
+	def __init__(self, setuptables=True):		
+		self.users = 'scraper_users'
+		self.friends = 'scraper_friends'
+		self.logs = 'scraper_logs'
+		self.bodystats = 'scraper_bodystats'
+		self.userinfo = 'scraper_userinfo'
+		self.logsummary = 'scraper_logsummary'
+		self.months = 'scraper_months'
+		self.exercises = 'scraper_exercises'
+		self.sets = 'scraper_sets'
+		self.notes = 'scraper_notes'
+		if setuptables:
+			self.setuptables()
+	
+	def setuptables(self):
+		self.tables = db.listTables()
+		if self.users not in self.tables:
+			db.insertTable(self.users, [('userid', 'INTEGER'), ('username', 'text'), ('public', 'boolean'), ('scraped', 'boolean', False), ('firstdate', 'integer'), ('lastdate', 'integer'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
+		if self.friends not in self.tables:
+			db.insertTable(self.friends, [('rowid', 'SERIAL'), ('user1', 'INTEGER'), ('user2', 'INTEGER'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
+		if self.logs not in self.tables:
+			db.insertTable(self.logs, [('logid', 'SERIAL'), ('userid_id', 'INTEGER'), ('url', 'TEXT'), ('date', 'INTEGER'), ('scraped', 'BOOLEAN', False), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
+		if self.bodystats not in self.tables:
+			db.insertTable(self.bodystats, [('logid_id', 'INTEGER'), ('weight', 'REAL'), ('weight_unit', 'TEXT'), ('length_unit', 'TEXT'), ('fatpercent', 'REAL'), ('bmi', 'REAL'), ('chest', 'REAL'), ('shoulders', 'REAL'), ('hips', 'REAL'), ('waist', 'REAL'), ('forearms', 'REAL'), ('thighs', 'REAL'), ('arms', 'REAL'), ('neck', 'REAL'), ('calves', 'REAL'), ('height', 'REAL'), ('height_unit', 'TEXT'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
+		if self.userinfo not in self.tables:
+			db.insertTable(self.userinfo, [('userid_id', 'INTEGER'), ('birthyear', 'SMALLINT'), ('location', 'TEXT'), ('male', 'BOOLEAN'), ('nfriends', 'INTEGER'), ('firstworkout', 'INTEGER'), ('lastworkout', 'INTEGER'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
+		if self.logsummary not in self.tables:
+			db.insertTable(self.logsummary, [('logid_id', 'INTEGER'), ('session_length', 'INTEGER'), ('rest_timer', 'INTEGER'), ('actual_workout', 'INTEGER'), ('wasted_time', 'INTEGER'), ('exercises_done', 'INTEGER'), ('weight_lifted', 'REAL'), ('weight_lifted_unit', 'TEXT'), ('jefitdate', 'TEXT'), ('jefitid1', 'INTEGER'), ('jefitid2', 'INTEGER'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
+		if self.months not in self.tables:
+			db.insertTable(self.months, [('rowid', 'SERIAL'), ('userid_id', 'INTEGER'), ('scrapeddate', 'INTEGER'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
+		if self.exercises not in self.tables:
+			db.insertTable(self.exercises, [('exid', 'INTEGER'), ('logrowid', 'INTEGER'), ('myrecord', 'FLOAT'), ('logid_id', 'INTEGER'), ('ename', 'TEXT'), ('recordtype', 'INTEGER'), ('exerciseid', 'INTEGER'), ('belongsys', 'INTEGER'), ('bs', 'INTEGER'), ('date', 'TEXT'), ('eid', 'INTEGER'), ('jefitlogid', 'INTEGER'), ('pdate', 'INTEGER'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
+		if self.sets not in self.tables:
+			db.insertTable(self.sets, [('setid', 'SERIAL'), ('exid_id', 'INTEGER'), ('setnumber', 'INTEGER'), ('rep', 'INTEGER'), ('weight', 'REAL'), ('hour', 'INTEGER'), ('min', 'INTEGER'), ('sec', 'INTEGER'), ('totalexseconds', 'INTEGER'), ('distance', 'REAL'), ('speed', 'REAL'), ('lap_rep', 'REAL'), ('calorie', 'REAL'), ('distance_unit', 'TEXT'), ('speed_unit', 'TEXT'), ('lap_rep_unit', 'TEXT'), ('calorie_unit', 'TEXT'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
+		if self.notes not in self.tables:
+			db.insertTable(self.notes, [('noteid', 'SERIAL'), ('logid_id', 'INTEGER'), ('note', 'TEXT'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
+	
+		computers = heroku.getValues('computer_name', 'monitor_computer')
+		if settings.computer not in computers:
+			heroku.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
+	
 #
 # **********************************************************************************************************
 # * ------------------------------------------ Code starts here ------------------------------------------ *
 # **********************************************************************************************************
 
-# get local settings
-settings = Settings()
+
 #connect to databases
 db = database(settings.dbconfig)
 heroku = database(settings.herokuconfig)
@@ -1295,35 +1346,7 @@ br = browser(path=settings.dropboxPath + 'Data Incubator/Project/Jefit/allusers/
 br.login()
 
 # set up tables
-def setuptables():
-	tables = db.listTables()
-	if 'users' not in tables:
-		db.insertTable('users', [('userid', 'INTEGER'), ('username', 'text'), ('public', 'boolean'), ('scraped', 'boolean', False), ('firstdate', 'integer'), ('lastdate', 'integer')] , pkey=0, showError=True)
-	if 'friends' not in tables:
-		db.insertTable('friends', [('rowid', 'SERIAL'), ('user1', 'INTEGER'), ('user2', 'INTEGER')] , pkey=0, showError=True)
-	if 'logs' not in tables:
-		db.insertTable('logs', [('logid', 'SERIAL'), ('userid', 'INTEGER'), ('url', 'TEXT'), ('date', 'INTEGER'), ('scraped', 'BOOLEAN', False)] , pkey=0, showError=True)
-	if 'bodystats' not in tables:
-		db.insertTable('bodystats', [('logid', 'INTEGER'), ('weight', 'REAL'), ('weight_unit', 'TEXT'), ('length_unit', 'TEXT'), ('fatpercent', 'REAL'), ('bmi', 'REAL'), ('chest', 'REAL'), ('shoulders', 'REAL'), ('hips', 'REAL'), ('waist', 'REAL'), ('forearms', 'REAL'), ('thighs', 'REAL'), ('arms', 'REAL'), ('neck', 'REAL'), ('calves', 'REAL'), ('height', 'REAL'), ('height_unit', 'TEXT')] , pkey=0, showError=True)
-	if 'userinfo' not in tables:
-		db.insertTable('userinfo', [('userid', 'INTEGER'), ('birthyear', 'SMALLINT'), ('location', 'TEXT'), ('male', 'BOOLEAN'), ('nfriends', 'INTEGER'), ('firstworkout', 'INTEGER'), ('lastworkout', 'INTEGER')] , pkey=0, showError=True)
-	if 'logsummary' not in tables:
-		db.insertTable('logsummary', [('logid', 'INTEGER'), ('session_length', 'INTEGER'), ('rest_timer', 'INTEGER'), ('actual_workout', 'INTEGER'), ('wasted_time', 'INTEGER'), ('exercises_done', 'INTEGER'), ('weight_lifted', 'REAL'), ('weight_lifted_unit', 'TEXT'), ('jefitdate', 'TEXT'), ('jefitid1', 'INTEGER'), ('jefitid2', 'INTEGER')] , pkey=0, showError=True)
-	if 'months' not in tables:
-		db.insertTable('months', [('rowid', 'SERIAL'), ('userid', 'INTEGER'), ('scrapeddate', 'INTEGER')] , pkey=0, showError=True)
-	if 'exercises' not in tables:
-		db.insertTable('exercises', [('exid', 'INTEGER'), ('logrowid', 'INTEGER'), ('myrecord', 'FLOAT'), ('logid', 'INTEGER'), ('ename', 'TEXT'), ('recordtype', 'INTEGER'), ('exerciseid', 'INTEGER'), ('belongsys', 'INTEGER'), ('bs', 'INTEGER'), ('date', 'TEXT'), ('eid', 'INTEGER'), ('jefitlogid', 'INTEGER'), ('pdate', 'INTEGER')] , pkey=0, showError=True)
-	if 'sets' not in tables:
-		db.insertTable('sets', [('setid', 'SERIAL'), ('exid', 'INTEGER'), ('setnumber', 'INTEGER'), ('rep', 'INTEGER'), ('weight', 'REAL'), ('hour', 'INTEGER'), ('min', 'INTEGER'), ('sec', 'INTEGER'), ('totalexseconds', 'INTEGER'), ('distance', 'REAL'), ('speed', 'REAL'), ('lap_rep', 'REAL'), ('calorie', 'REAL'), ('distance_unit', 'TEXT'), ('speed_unit', 'TEXT'), ('lap_rep_unit', 'TEXT'), ('calorie_unit', 'TEXT')] , pkey=0, showError=True)
-	if 'notes' not in tables:
-		db.insertTable('notes', [('noteid', 'SERIAL'), ('logid', 'INTEGER'), ('note', 'TEXT')] , pkey=0, showError=True)
-	#if 'alive' not in tables:
-		#db.insertTable('alive', [('computer', 'TEXT'), ('activity', 'TIMESTAMP')] , pkey=0, showError=True)
-
-	computers = heroku.getValues('computer_name', 'monitor_computer')
-	if settings.computer not in computers:
-		heroku.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
-setuptables()
+tables = Tables()
 
 
 # ** Get list of members ** 
@@ -1350,14 +1373,14 @@ if settings.scrapeUsers:
 		#write users to database
 		monthPage.scraped = False
 		monthPage.prepare4db(date, date)
-		db.write2db(monthPage.todb, 'users',insertKeys=False)
+		db.write2db(monthPage.todb, tables.users, insertKeys=False)  #writing to users (no need for id fix)
 		
 		#write friends to database
-		db.insertMany('friends', ('user1', 'user2'), monthPage.friends)
+		db.insertMany(tables.friends, ('user1', 'user2'), monthPage.friends)
 		
 		#write logs for this month
 		if monthPage.public:
-			db.insertMany('logs', ('userid', 'url', 'date'), monthPage.dbrows)
+			db.insertMany(tables.logs, ('userid', 'url', 'date'), monthPage.dbrows)
 		
 		#add any friends to queue
 		Q.addFriends(monthPage.friends, even=settings.onlyEven)
@@ -1396,7 +1419,7 @@ if settings.scrapeMonths:
 		#hit profile page
 		soup = br.tryPage('https://www.jefit.com/' + str(user),soup=True)
 		if soup.find('title').text[:15] == 'JEFIT Community':
-			db.updateField('users', 'scraped', True, 'userid', user)
+			db.updateField(tables.users, 'scraped', True, 'userid', user)
 			continue
 		profile = ProfilePage(soup, user=user, addFriends=True)
 		
@@ -1410,19 +1433,19 @@ if settings.scrapeMonths:
 		fs = []
 		for f in friends:
 			fs.append((user, f))
-		db.insertMany('friends', ('user1', 'user2'), fs)
+		db.insertMany(tables.friends, ('user1', 'user2'), fs)
 		
 		#write logs
-		db.insertMany('logs', ('userid', 'url', 'date'), links)	
+		db.insertMany(tables.logs, ('userid_id', 'url', 'date'), links)	
 		
 		#write scraped months
-		db.insertMany('months', ('userid', 'scrapeddate'), scraped)	
+		db.insertMany(tables.months, ('userid_id', 'scrapeddate'), scraped)
 		
 		#write userinfo
 		profile.writeUserInfo()
 		
 		#don't scrape again for now
-		db.updateField('users', 'scraped', True, 'userid', user)
+		db.updateField(tables.users, 'scraped', True, 'userid', user)
 
 
 #Scrape actual workout sessions
@@ -1463,7 +1486,7 @@ if settings.scrapeLogs:
 		if timeMe: s = timeIt(s, 'Wrote to database')		
 		
 		#update database queue
-		db.updateField('logs', 'scraped', True, 'logid', logid)
+		db.updateField(tables.logs, 'scraped', True, 'logid', logid)
 		if timeMe: s = timeIt(s, 'Set scraped = True')
 		
 		#print progress
