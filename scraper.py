@@ -19,13 +19,7 @@ from urllib2 import urlopen
 
 ver = '1.0'
 
-
-class IOError(Exception):
-	def __init__(self, value='Database I/O error'):
-		print(value)
-		with open(settings.errorlog, 'ab') as errorOut:
-			errorOut.write(unicode(ctime()) + u' \t' + value + '\n')	
-			
+		
 class SQLerror(Exception):
 	def __init__(self, value='SQL error'):
 		print(value)
@@ -528,7 +522,14 @@ class database:
 
 	def setNoteCounter(self):
 		dmp = self.getValues('noteid', tables.notes)
-		settings.note_inc = max(dmp) + 1
+		n = max(dmp)
+		n = n + 1
+		if settings.onlyEven and (n&1 == 1):
+			n = n + 1
+		if settings.onlyEven == False and (n&1 == 0):
+			n = n + 1
+		settings.note_inc = n
+		
 #This huy queues up users
 class userqueue:
 	""""""
@@ -1087,7 +1088,7 @@ class LogPage:
 			db.write2db(self.summary, tables.logsummary)
 		if notes and self.notes != {}:
 			for k in self.notes.keys():
-				settings.note_inc = settings.note_inc + 1
+				settings.note_inc = settings.note_inc + 2
 				dmp = dict()
 				dmp['logid_id'] = self.logid
 				dmp['note'] = self.notes[k]
