@@ -78,7 +78,7 @@ class Settings:
 		elif self.computer == 'hemma':   # Hemma (months, uneven)
 			self.runlocal = True
 			self.scrapeMonths = True
-			self.onlyEven = True
+			self.onlyEven = False
 		elif self.computer == 'toshiban':   # Toshiban (users, uneven)
 			self.scrapeUsers = True
 			self.onlyEven = False
@@ -473,13 +473,22 @@ class database:
 	def imStillAlive(self, debug=settings.debug):
 		class Dummy:
 			def execute(self):
-				self.updateField('monitor_computer', 'activity', 'now', 'computer_name', settings.computer)
+				computers = heroku.getValues('computer_name', 'monitor_computer')
+				if settings.computer not in computers:
+					self.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
+				else:
+					self.updateField('monitor_computer', 'activity', 'now', 'computer_name', settings.computer)
+					old_ip = br.ip
+					br.getIP()
+					if old_ip != br.ip:
+						self.updateField('monitor_computer', 'ip', br.ip, 'computer_name', settings.computer)
 				return True
 
 		if (datetime.now() - self.alivechk).total_seconds() > settings.chkFreq:
 			self.alivechk = datetime.now()
 			dummy = Dummy()
 			dummy.updateField = self.updateField
+			dummy.write2db = self.write2db
 			if not debug:
 				return self.timeoutHandler(dummy)
 			else:
@@ -1386,7 +1395,7 @@ if settings.scrapeUsers:
 		
 		#write logs for this month
 		if monthPage.public:
-			db.insertMany(tables.logs, ('userid', 'url', 'date'), monthPage.dbrows)
+			db.insertMany(tables.logs, ('userid_id', 'url', 'date'), monthPage.dbrows)
 		
 		#add any friends to queue
 		Q.addFriends(monthPage.friends, even=settings.onlyEven)
