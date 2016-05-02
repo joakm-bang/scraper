@@ -421,7 +421,7 @@ class database:
 
 	
 	#Read column values
-	def getValues(self, thisCol, thisTable, unique = False, sels = [], debug=settings.debug):
+	def getValues(self, thisCol, thisTable, unique = False, sels = [], debug=settings.debug, limit=None):
 		class Dummy:
 			def execute(self):		
 				def listMe(x):
@@ -442,7 +442,7 @@ class database:
 				else:
 					self.thisCol = self.thisCol[0]
 					
-				sql = 'SELECT {0} {1} FROM {2} {3}'.format('DISTINCT'*unique, self.thisCol, self.thisTable, selStr)
+				sql = 'SELECT {0} {1} FROM {2} {3} {4}'.format('DISTINCT'*unique, self.thisCol, self.thisTable, selStr, (' limit ' + str(limit))*(limit is not None))
 				
 				self.cur.execute(sql)
 	
@@ -468,6 +468,20 @@ class database:
 		else:
 			return dummy.execute()		
 	
+	def getSubset(self, thisCol, thisTable, sels=[], unique=False, limit=None, ul=None, ll=None, onlyEven=None, limvar=None, debug=settings.debug):
+		if limvar is None:
+			if isinstance(thisCol, list) or isinstance(thisCol, tuple):
+				limvar = thisCol[0]
+			else:
+				limvar = thisCol
+		if ul is not None:
+			sels.append((limvar, '<=', ul))
+		if ll is not None:
+			sels.append((limvar, '>=', ll))
+		if onlyEven is not None:
+			sels.append(('mod({0},2)'.format(limvar), '=', 1-onlyEven))
+		return self.getValues(thisCol, thisTable, unique=unique, sels=sels, debug=debug, limit=limit)
+			
 	
 	#tell the database that you're alive
 	def imStillAlive(self, debug=settings.debug):
@@ -608,12 +622,20 @@ class userqueue:
 			
 class monthQueue:
 	#----------------------------------------------------------------------
-	def __init__(self, only_new_users=True, onlyEven=None):
+	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=50000):
 		# get unscraped users already in list
-		self.queue = db.getValues(('userid', 'firstdate'), tables.users, sels=[('scraped', '=', False), ('public', '=', True)])
-		self.doneUsers = db.getValues('userid_id', tables.userinfo)
-		self.only_new_users = only_new_users
+		#self.queue = db.getValues(('userid', 'firstdate'), tables.users, sels=[('scraped', '=', False), ('public', '=', True)])
+		#self.doneUsers = db.getValues('userid_id', tables.userinfo)
+		#self.only_new_users = only_new_users
+		#self.queue = db.getSubset(('userid', 'firstdate'), tables.users, sels=[('scraped', '=', False), ('public', '=', True)], onlyEven=self.onlyEven, limit=limit)
 		self.onlyEven = onlyEven
+		self.limit = limit
+		self.ul = ul
+		self.ll = ll
+		self.refill()
+		
+	def refill(self):
+		self.queue = db.getSubset(('userid', 'firstdate'), tables.users, sels=[('scraped', '=', False), ('public', '=', True)])
 	
 	def __call__(self):
 		return self.queue
@@ -623,11 +645,11 @@ class monthQueue:
 	
 	def pop(self, n=-1):
 		pop = self.queue.pop(n)
-		if ((pop[0] not in self.doneUsers) or (self.only_new_users == False)) and ( (self.onlyEven is None) or ((pop[0]&1 == 0 and self.onlyEven == True) or (pop[0]&1 == 1 and self.onlyEven == False)) ):
-			return(pop)
-		else:
-			while (pop[0] in self.doneUsers) or ((pop[0]&1 == 0) != self.onlyEven):
-				pop = self.queue.pop(n)
+		#if ((pop[0] not in self.doneUsers) or (self.only_new_users == False)) and ( (self.onlyEven is None) or ((pop[0]&1 == 0 and self.onlyEven == True) or (pop[0]&1 == 1 and self.onlyEven == False)) ):
+			#return(pop)
+		#else:
+			#while (pop[0] in self.doneUsers) or ((pop[0]&1 == 0) != self.onlyEven):
+				#pop = self.queue.pop(n)
 		return(pop)
 			
 	
@@ -639,23 +661,27 @@ class monthQueue:
 
 class logQueue:
 	#----------------------------------------------------------------------
-	def __init__(self, onlyEven = None):
+	def __init__(self, onlyEven = None, ul=None, ll=None, limit=50000):
 		
 		self.onlyEven = onlyEven
+		self.limit = limit
+		self.ul = ul
+		self.ll = ll		
 		self.refill()		
 	
 	def __call__(self):
 		return self.queue
 
 	def refill(self):
-		dmp = db.getValues(('logid', 'url', 'userid_id'), tables.logs, sels=[('scraped', '=', False)])
-		if self.onlyEven is not None:
-			self.queue = []
-			for xi in dmp:
-				if (xi[0] & 1 == 0) == self.onlyEven:
-					self.queue.append(xi)
-		else:
-			self.queue = dmp
+		self.queue = db.getValues(('logid', 'url', 'userid_id'), tables.logs, sels=[('scraped', '=', False)], onlyEven=self.onlyEven, limit=self.limit)
+		#dmp = db.getValues(('logid', 'url', 'userid_id'), tables.logs, sels=[('scraped', '=', False)], limit=25000)
+		#if self.onlyEven is not None:
+			#self.queue = []
+			#for xi in dmp:
+				#if (xi[0] & 1 == 0) == self.onlyEven:
+					#self.queue.append(xi)
+		#else:
+			#self.queue = dmp
 
 	def len(self):
 		return len(self.queue)
@@ -1461,6 +1487,9 @@ if settings.scrapeMonths:
 		
 		#don't scrape again for now
 		db.updateField(tables.users, 'scraped', True, 'userid', user)
+		
+		if Q.isempty():
+			Q.refill()
 
 
 #Scrape actual workout sessions
