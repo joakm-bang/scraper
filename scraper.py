@@ -79,12 +79,12 @@ class Settings:
 			self.runlocal = True
 			self.scrapeMonths = True
 			self.onlyEven = False
-		elif self.computer == 'toshiban':   # Toshiban (users, uneven)
-			self.scrapeUsers = True
-			self.onlyEven = False
-		elif self.computer == 'litenvit':   # Liten vit (logs, uneven)
-			self.runLAN = True
+		elif self.computer == 'toshiban':   # Toshiban (logs, uneven)
 			self.scrapeLogs = True
+			self.onlyEven = False
+		elif self.computer == 'litenvit':   # Liten vit (users, uneven)
+			self.runLAN = True
+			self.scrapeUsers = True
 			self.onlyEven = False
 			self.bannedIP = '60.241.126.187'
 		elif self.computer == 'garderoben':   # Garderoben (logs, even)
