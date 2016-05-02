@@ -64,6 +64,7 @@ class Settings:
 		self.scrapeLogs = False
 		self.onlyEven = None
 		self.chkFreq = 60*5
+		self.iterations = 0
 		# machine specific variables
 		self.dropboxPath = environ['DROPBOX_PATH']
 		self.computer = environ['COMPUTER_NAME']
@@ -483,24 +484,60 @@ class database:
 		return self.getValues(thisCol, thisTable, unique=unique, sels=sels, debug=debug, limit=limit)
 			
 	
+	
+	def updateMany(self, thisTable, changeVars, newVals, selVar, targetVal, debug=settings.debug):
+		class Dummy:
+			def execute(self):
+				def listMe(x):
+					if not (isinstance(x, list) or isinstance(x, tuple)):
+						x = [x]
+					return x
+				changeVars = listMe(changeVars)
+				newVals = listMe(newVals)
+				changes = ''
+				for var, val in zip(changeVars, newVals):
+					q = '' + "'"*(isinstance(val, str) or isinstance(val, unicode))
+					changes = "{0}{1} = {2}{3}{4}, ".format(changes, var, q, str(val), q)
+				changes.strip(', ')
+				q = '' + "'"*(isinstance(self.targetVal, str) or isinstance(self.targetVal, unicode))
+				self.cur.execute("UPDATE {0} SET {1} WHERE {2} = {3}{4}{5}".format(self.thisTable, changes, self.selVar, q, str(self.targetVal), q))
+				self.con.commit()
+				return True
+		dummy = Dummy()
+		dummy.thisTable = thisTable
+		dummy.changeVar = changeVar
+		dummy.newVal = newVal
+		dummy.selVar = selVar
+		dummy.targetVal = targetVal
+		dummy.safeVal = self.safeVal
+		dummy.con = self.con
+		dummy.cur = self.cur		
+		if not debug:
+			return self.timeoutHandler(dummy)
+		else:
+			return dummy.execute()
+		
+		
 	#tell the database that you're alive
 	def imStillAlive(self, debug=settings.debug):
 		class Dummy:
 			def execute(self):
 				computers = heroku.getValues('computer_name', 'monitor_computer')
 				if settings.computer not in computers:
-					self.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
+					self.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 'email_sent':True, 'speed':0}, 'monitor_computer', useTimeStamp=False)
 				else:
-					self.updateField('monitor_computer', 'activity', 'now', 'computer_name', settings.computer)
-					old_ip = br.ip
+					#self.updateField('monitor_computer', 'activity', 'now', 'computer_name', settings.computer)
+					#old_ip = br.ip
 					br.getIP()
-					if old_ip != br.ip:
-						self.updateField('monitor_computer', 'ip', br.ip, 'computer_name', settings.computer)
+					self.updateField('monitor_computer', ['activity', 'ip', 'speed'], ['now', br.ip, self.speed], 'computer_name', settings.computer)
+					#if old_ip != br.ip:
+						#self.updateField('monitor_computer', 'ip', br.ip, 'computer_name', settings.computer)
 				return True
-
+		settings.iterations = settings.iterations + 1
 		if (datetime.now() - self.alivechk).total_seconds() > settings.chkFreq:
-			self.alivechk = datetime.now()
 			dummy = Dummy()
+			dummy.speed = (datetime.now() - self.alivechk).total_seconds()/settings.iterations
+			self.alivechk = datetime.now()
 			dummy.updateField = self.updateField
 			dummy.write2db = self.write2db
 			if not debug:
@@ -1332,16 +1369,16 @@ class LogPage:
 class Tables:
 	
 	def __init__(self, setuptables=True):		
-		self.users = 'scraper_users'
-		self.friends = 'scraper_friends'
-		self.logs = 'scraper_logs'
-		self.bodystats = 'scraper_bodystats'
-		self.userinfo = 'scraper_userinfo'
-		self.logsummary = 'scraper_logsummary'
-		self.months = 'scraper_months'
-		self.exercises = 'scraper_exercises'
-		self.sets = 'scraper_sets'
-		self.notes = 'scraper_notes'
+		self.users = 'scrape_users'
+		self.friends = 'scrape_friends'
+		self.logs = 'scrape_logs'
+		self.bodystats = 'scrape_bodystats'
+		self.userinfo = 'scrape_userinfo'
+		self.logsummary = 'scrape_logsummary'
+		self.months = 'scrape_months'
+		self.exercises = 'scrape_exercises'
+		self.sets = 'scrape_sets'
+		self.notes = 'scrape_notes'
 		if setuptables:
 			self.setuptables()
 	
