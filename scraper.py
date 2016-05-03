@@ -54,7 +54,7 @@ class Settings:
 	#----------------------------------------------------------------------
 	def __init__(self):
 		#Defaults
-		self.debug = True
+		self.debug = False
 		self.bannedIP = None
 		self.runlocal = False
 		self.runLAN = False
@@ -63,8 +63,7 @@ class Settings:
 		self.scrapeMonths = False
 		self.scrapeLogs = False
 		self.onlyEven = None
-		self.chkFreq = 10
-		#60*5
+		self.chkFreq = 60*5
 		self.iterations = 0
 		# machine specific variables
 		self.dropboxPath = environ['DROPBOX_PATH']
