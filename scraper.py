@@ -589,7 +589,7 @@ class database:
 		settings.iterations = settings.iterations + 1
 		if (datetime.now() - self.alivechk).total_seconds() > settings.chkFreq:
 			dummy = Dummy()
-			dummy.speed = 60*settings.iterations/(datetime.now() - self.alivechk).total_seconds()
+			dummy.speed = round(60*settings.iterations/(datetime.now() - self.alivechk).total_seconds(),2)
 			settings.iterations = 0
 			self.alivechk = datetime.now()
 			dummy.updateField = self.updateField
