@@ -58,7 +58,7 @@ class Settings:
 		self.bannedIP = None
 		self.runlocal = False
 		self.runLAN = False
-		self.delayLambda = 6
+		self.delayLambda = 5
 		self.scrapeUsers = False
 		self.scrapeMonths = False
 		self.scrapeLogs = False
@@ -71,11 +71,11 @@ class Settings:
 		if self.computer == 'kontoret':  # Kontoret (months, even)
 			self.scrapeMonths = True
 			self.onlyEven = True
-			self.delayLambda = 12
+			self.delayLambda = 10
 		elif self.computer == 'server':   #Server (users, even)
 			self.scrapeUsers = True
 			self.onlyEven = True
-			self.delayLambda = 12
+			self.delayLambda = 10
 		elif self.computer == 'hemma':   # Hemma (months, uneven)
 			self.runlocal = True
 			self.scrapeMonths = True
@@ -674,7 +674,7 @@ class monthQueue:
 		self.refill()
 		
 	def refill(self):
-		self.queue = db.getSubset(('userid', 'firstdate'), tables.users, sels=[('scraped', '=', False), ('public', '=', True)])
+		self.queue = db.getSubset(('userid', 'firstdate'), tables.users, sels=[('scraped', '=', False), ('public', '=', True)], onlyEven=self.onlyEven, limit=self.limit)
 	
 	def __call__(self):
 		return self.queue
