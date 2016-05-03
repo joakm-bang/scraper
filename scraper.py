@@ -73,17 +73,17 @@ class Settings:
 			self.scrapeMonths = True
 			self.onlyEven = True
 			self.delayLambda = 10
-		elif self.computer == 'server':   #Server (users, even)
-			self.scrapeUsers = True
-			self.onlyEven = True
+		elif self.computer == 'server':   #Server (logs, uneven)
+			self.scrapeLogs = True
+			self.onlyEven = False
 			self.delayLambda = 10
 		elif self.computer == 'hemma':   # Hemma (months, uneven)
 			self.runlocal = True
 			self.scrapeMonths = True
 			self.onlyEven = False
-		elif self.computer == 'toshiban':   # Toshiban (logs, uneven)
-			self.scrapeLogs = True
-			self.onlyEven = False
+		elif self.computer == 'toshiban':   # Toshiban (users, even)
+			self.scrapeUsers = True
+			self.onlyEven = True
 		elif self.computer == 'litenvit':   # Liten vit (users, uneven)
 			self.runLAN = True
 			self.scrapeUsers = True
