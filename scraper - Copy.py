@@ -45,8 +45,7 @@ class Settings:
 	""""""
 	
 	class settingsError(Exception):
-		def __init__(self, value='''Something went wrong while setting the settings. 
-		Probably a bad dropbox path.'''):
+		def __init__(self, value='Something went wrong while setting the settings. Probably a bad dropbox path.'):
 			print(value)
 			with open(settings.errorlog, 'ab') as errorOut:
 
@@ -97,8 +96,7 @@ class Settings:
 		else:
 			raise settingsError()
 		
-		self.errorlog = self.dropboxPath + 'Data Incubator/Project/jefit/allusers/errorlogs/' + \
-		    self.computer + datetime.ctime(datetime.now()).replace(' ', '_').replace(':','_') + '.txt'
+		self.errorlog = self.dropboxPath + 'Data Incubator/Project/jefit/allusers/errorlogs/' + self.computer + datetime.ctime(datetime.now()).replace(' ', '_').replace(':','_') + '.txt'
 		
 		#database connection
 		self.setDatabase()
@@ -142,12 +140,7 @@ class database:
 	#connect to database
 	def connect(self):
 		config = dict()	
-		self.con = psycopg2.connect("dbname={0} user={1} password={2} host={3} port={4}".format(
-		    self.dbconfig[u'database'], 
-		    self.dbconfig[u'user'], 
-		    self.dbconfig[u'password'], 
-		    self.dbconfig[u'host'], 
-		    self.dbconfig[u'port']))
+		self.con = psycopg2.connect("dbname={0} user={1} password={2} host={3} port={4}".format(self.dbconfig[u'database'], self.dbconfig[u'user'], self.dbconfig[u'password'], self.dbconfig[u'host'], self.dbconfig[u'port']))
 		self.cur = self.con.cursor()
 		self.connected = True
 
@@ -219,11 +212,7 @@ class database:
 					raise DBerror('Tried to insert unsafe column name')
 				if self.default != u'':
 					self.default = u' DEFAULT ' + self.default
-				self.cur.execute('ALTER TABLE {0} ADD COLUMN {1} {2} {3}'.format(
-				    self.table, 
-				    self.col, 
-				    self.varType, 
-				    self.default))
+				self.cur.execute('ALTER TABLE {0} ADD COLUMN {1} {2} {3}'.format(self.table, self.col, self.varType, self.default))
 				self.con.commit()
 				return True
 		dummy = Dummy()
@@ -244,10 +233,7 @@ class database:
 		
 		class Dummy:
 			def execute(self):
-				self.cur.execute(
-				    "select column_name from information_schema.columns where table_name = '{0}';".format(
-				    self.thisTable)
-				)
+				self.cur.execute("select column_name from information_schema.columns where table_name = '{0}';".format(self.thisTable))
 				dmp = self.cur.fetchall()
 				y = []
 				for d in dmp:
@@ -274,20 +260,11 @@ class database:
 				if isinstance(newVal, bool):
 					newVal = unicode(newVal)
 				if isinstance(self.targetVal, int) or isinstance(self.targetVal, float):
-					self.cur.execute("UPDATE {0} SET {1} = '{2}' WHERE {3} = {4}".format(
-					    self.thisTable, 
-					    self.changeVar, 
-					    newVal, 
-					    self.selVar, 
-					    unicode(self.targetVal)))
+					self.cur.execute("UPDATE {0} SET {1} = '{2}' WHERE {3} = {4}".format(self.thisTable, self.changeVar, newVal, self.selVar, unicode(self.targetVal)))
 					self.con.commit()
 				else:
-					self.cur.execute("UPDATE {0} SET {1} = '{2}' WHERE {3} = '{4}'".format(
-					    self.thisTable, 
-					    self.changeVar, 
-					    self.safeVal(newVal), 
-					    self.selVar, 
-					    self.targetVal))
+					self.cur.execute("UPDATE {0} SET {1} = '{2}' WHERE {3} = '{4}'".format(self.thisTable, self.changeVar, self.safeVal(newVal), self.selVar, self.targetVal))
+					#"UPDATE {0} SET {1} = '{2}' WHERE {3} = '{4}'".format(dummy.thisTable, dummy.changeVar, dummy.safeVal(newVal), dummy.selVar, dummy.targetVal)
 					self.con.commit()
 				return True
 		dummy = Dummy()
@@ -343,11 +320,8 @@ class database:
 						inserts.append(self.safeVal(self.thisDic[key]))
 						Ss = Ss + u',%s'
 						keyStr = keyStr + u',' + key
-				self.cur.execute(u'INSERT INTO {0} ({1}) VALUES ({2})'.format(
-				    self.thisTable, 
-				    keyStr.strip(u','), 
-				    Ss.strip(u',')
-				    ), tuple(inserts))
+				#self.cur.execute(u'INSERT INTO ' + self.thisTable + u' (' + keyStr.strip(u',') + u') VALUES (' + Ss.strip(u',') + u')', tuple(inserts))
+				self.cur.execute(u'INSERT INTO {0} ({1}) VALUES ({2})'.format(self.thisTable, keyStr.strip(u','), Ss.strip(u',')), tuple(inserts))
 				self.con.commit()
 				return True
 		
@@ -460,13 +434,7 @@ class database:
 				selStr = 'WHERE '*(len(self.sels) > 0)
 				for i, sel in enumerate(listMe(self.sels)):
 					isString = (isinstance(sel[2], str) or isinstance(sel[2], unicode))
-					selStr = selStr + "{0} {1} {2} {3} {4} {5}".format(
-					    sel[0], 
-					    sel[1], 
-					    "'"*isString, 
-					    str(sel[2]), 
-					    "'"*isString, 
-					    ' AND '*(i<len(self.sels)-1))
+					selStr = selStr + "{0} {1} {2} {3} {4} {5}".format(sel[0], sel[1], "'"*isString, str(sel[2]), "'"*isString, ' AND '*(i<len(self.sels)-1))
 				
 				self.thisCol = listMe(self.thisCol)	
 				ncols = len(self.thisCol)
@@ -475,12 +443,7 @@ class database:
 				else:
 					self.thisCol = self.thisCol[0]
 					
-				sql = 'SELECT {0} {1} FROM {2} {3} {4}'.format(
-				    'DISTINCT'*unique, 
-				    self.thisCol, 
-				    self.thisTable, 
-				    selStr, 
-				    (' limit ' + str(limit))*(limit is not None))
+				sql = 'SELECT {0} {1} FROM {2} {3} {4}'.format('DISTINCT'*unique, self.thisCol, self.thisTable, selStr, (' limit ' + str(limit))*(limit is not None))
 				
 				self.cur.execute(sql)
 	
@@ -506,8 +469,7 @@ class database:
 		else:
 			return dummy.execute()		
 	
-	def getSubset(self, thisCol, thisTable, sels=[], unique=False, limit=None, ul=None, ll=None, 
-	              onlyEven=None, limvar=None, debug=settings.debug):
+	def getSubset(self, thisCol, thisTable, sels=[], unique=False, limit=None, ul=None, ll=None, onlyEven=None, limvar=None, debug=settings.debug):
 		if limvar is None:
 			if isinstance(thisCol, list) or isinstance(thisCol, tuple):
 				limvar = thisCol[0]
@@ -538,13 +500,7 @@ class database:
 					changes = "{0}{1} = {2}{3}{4}, ".format(changes, var, q, str(val), q)
 				changes = changes.strip(', ')
 				q = '' + "'"*(isinstance(self.targetVal, str) or isinstance(self.targetVal, unicode))
-				self.cur.execute("UPDATE {0} SET {1} WHERE {2} = {3}{4}{5}".format(
-				    self.thisTable, 
-				    changes, 
-				    self.selVar, 
-				    q, 
-				    str(self.targetVal), 
-				    q))
+				self.cur.execute("UPDATE {0} SET {1} WHERE {2} = {3}{4}{5}".format(self.thisTable, changes, self.selVar, q, str(self.targetVal), q))
 				self.con.commit()
 				return True
 		dummy = Dummy()
@@ -568,23 +524,14 @@ class database:
 			def execute(self):
 				computers = heroku.getValues('computer_name', 'monitor_computer')
 				if settings.computer not in computers:
-					self.write2db(
-					    {
-					    'computer_name':settings.computer, 
-					    'ip':br.ip, 
-					    'activity':'now', 
-					    'email_sent':True, 
-					    'speed':0
-					    }, 
-					    'monitor_computer', 
-					    useTimeStamp=False)
+					self.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 'email_sent':True, 'speed':0}, 'monitor_computer', useTimeStamp=False)
 				else:
+					#self.updateField('monitor_computer', 'activity', 'now', 'computer_name', settings.computer)
+					#old_ip = br.ip
 					br.getIP()
-					self.updateMany('monitor_computer', 
-					                ['activity', 'ip', 'speed'], 
-					                ['now', br.ip, self.speed], 
-					                'computer_name', 
-					                settings.computer)
+					self.updateMany('monitor_computer', ['activity', 'ip', 'speed'], ['now', br.ip, self.speed], 'computer_name', settings.computer)
+					#if old_ip != br.ip:
+						#self.updateField('monitor_computer', 'ip', br.ip, 'computer_name', settings.computer)
 				return True
 		settings.iterations = settings.iterations + 1
 		if (datetime.now() - self.alivechk).total_seconds() > settings.chkFreq:
@@ -703,6 +650,8 @@ class userqueue:
 		self.queue = sample(dmp,min(k,len(dmp)))
 		
 	def fillFriends(self, even=None):
+		#dmp = list(set(db.getColVal('user2', tables.friends)).difference(self.done))
+		#dmp = self.keepEven(list(set(db.getColVal('user2', tables.friends)).difference(self.done)), even)
 		dmp = list(set(db.getValues('user2', tables.friends)).difference(self.done))
 		dmp = self.keepEven(list(set(db.getValues('user2', tables.friends)).difference(self.done)), even)
 		self.queue = self.queue + dmp
@@ -713,6 +662,11 @@ class userqueue:
 class monthQueue:
 	#----------------------------------------------------------------------
 	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=50000):
+		# get unscraped users already in list
+		#self.queue = db.getValues(('userid', 'firstdate'), tables.users, sels=[('scraped', '=', False), ('public', '=', True)])
+		#self.doneUsers = db.getValues('userid_id', tables.userinfo)
+		#self.only_new_users = only_new_users
+		#self.queue = db.getSubset(('userid', 'firstdate'), tables.users, sels=[('scraped', '=', False), ('public', '=', True)], onlyEven=self.onlyEven, limit=limit)
 		self.onlyEven = onlyEven
 		self.limit = limit
 		self.ul = ul
@@ -720,11 +674,7 @@ class monthQueue:
 		self.refill()
 		
 	def refill(self):
-		self.queue = db.getSubset(('userid', 'firstdate'), 
-		                          tables.users, 
-		                          sels=[('scraped', '=', False), ('public', '=', True)], 
-		                          onlyEven=self.onlyEven, 
-		                          limit=self.limit)
+		self.queue = db.getSubset(('userid', 'firstdate'), tables.users, sels=[('scraped', '=', False), ('public', '=', True)], onlyEven=self.onlyEven, limit=self.limit)
 	
 	def __call__(self):
 		return self.queue
@@ -733,7 +683,14 @@ class monthQueue:
 		return len(self.queue)
 	
 	def pop(self, n=-1):
-		return self.queue.pop(n)			
+		pop = self.queue.pop(n)
+		#if ((pop[0] not in self.doneUsers) or (self.only_new_users == False)) and ( (self.onlyEven is None) or ((pop[0]&1 == 0 and self.onlyEven == True) or (pop[0]&1 == 1 and self.onlyEven == False)) ):
+			#return(pop)
+		#else:
+			#while (pop[0] in self.doneUsers) or ((pop[0]&1 == 0) != self.onlyEven):
+				#pop = self.queue.pop(n)
+		return(pop)
+			
 	
 	def isempty(self):
 		if self.len() == 0:
@@ -755,10 +712,15 @@ class logQueue:
 		return self.queue
 
 	def refill(self):
-		self.queue = db.getSubset(('logid', 'url', 'userid_id'), 
-		                          tables.logs, sels=[('scraped', '=', False)], 
-		                          onlyEven=self.onlyEven, 
-		                          limit=self.limit)
+		self.queue = db.getSubset(('logid', 'url', 'userid_id'), tables.logs, sels=[('scraped', '=', False)], onlyEven=self.onlyEven, limit=self.limit)
+		#dmp = db.getValues(('logid', 'url', 'userid_id'), tables.logs, sels=[('scraped', '=', False)], limit=25000)
+		#if self.onlyEven is not None:
+			#self.queue = []
+			#for xi in dmp:
+				#if (xi[0] & 1 == 0) == self.onlyEven:
+					#self.queue.append(xi)
+		#else:
+			#self.queue = dmp
 
 	def len(self):
 		return len(self.queue)
@@ -801,11 +763,7 @@ class browser:
 
 	
 	#----------------------------------------------------------------------
-	def summonBrowser(self,
-	                  headers = [('User-agent', 
-	                              'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 ' + \
-	                              'Fedora/3.0.1-1.fc9 Firefox/3.0.1'
-	                              )]):
+	def summonBrowser(self,headers = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1')]):
 		class NoHistory(object):
 			def add(self, *a, **k): pass
 			def clear(self): pass
@@ -829,10 +787,7 @@ class browser:
 		napTime = max(randomDelay - delta[2],minDelay)
 		if napTime > 0:
 			if printDelay:
-				print('Total delay:\t' + str(round(sum(delta),2)) + ' seconds\t(' + \
-				      str(round(delta[0] + delta[2],2)) + ' nap [' + str(round(delta[2],2)) + \
-				      ' code + ' + str(round(delta[0],2)) + ' extra] and ' + str(round(delta[1],2)) + \
-				      ' browser).')
+				print('Total delay:\t' + str(round(sum(delta),2)) + ' seconds\t(' + str(round(delta[0] + delta[2],2)) + ' nap [' + str(round(delta[2],2)) + ' code + ' + str(round(delta[0],2)) + ' extra] and ' + str(round(delta[1],2)) + ' browser).')
 			sleep(napTime)	
 
 	#----------------------------------------------------------------------
@@ -849,18 +804,15 @@ class browser:
 				except:
 					err = str(err).decode('ascii', 'ignore')
 		divider = u' *'*30
-		print(divider + u'\nError at:' + errStr + u'\nError message:\n' + err + u'\nNapping for ' + \
-		      unicode(napTime/60) + u' minutes\n' + divider)
+		print(divider + u'\nError at:' + errStr + u'\nError message:\n' + err + u'\nNapping for ' + unicode(napTime/60) + u' minutes\n' + divider)
 		with open(self.errorlog, 'ab') as errorOut:
-			errorOut.write(unicode(ctime()) + ', ' + errStr + ', ' + err.encode('latin-1') + ', ' + \
-			               unicode(napTime))
+			errorOut.write(unicode(ctime()) + ', ' + errStr + ', ' + err.encode('latin-1') + ', ' + unicode(napTime))
 		thisNap = poisson(napTime)
 		sleep(thisNap)
 	
 	#----------------------------------------------------------------------
 	#Hit the webpage
-	def tryPage(self, targetURL, doForm=None, maxtries=10, napTime=90, mess='Error while opening page', 
-	            soup=False, noDelay=False):
+	def tryPage(self, targetURL, doForm=None, maxtries=10, napTime=90, mess='Error while opening page', soup=False, noDelay=False):
 		goon = True
 		tryCount = 0
 		while goon == True and tryCount < maxtries:
@@ -976,11 +928,8 @@ class MonthPage:
 			if self.user:
 				self.dbrows = []
 				for link in self.links:
-					self.dbrows.append(
-					    (self.user, 
-					     link, 
-					     datetime.toordinal(datetime.strptime(link[link.rfind('dd=')+3:], '%Y-%m-%d')))
-					)
+					#self.dbrows.append((link, datetime.toordinal(datetime.strptime(link[link.rfind('dd=')+3:], '%Y-%m-%d')), False, self.user, None))
+					self.dbrows.append((self.user, link, datetime.toordinal(datetime.strptime(link[link.rfind('dd=')+3:], '%Y-%m-%d'))))
 	
 	def prepare4db(self, firstdate=None, lastdate=None):
 		self.todb = dict()
@@ -1115,11 +1064,8 @@ class ProfilePage:
 		def procMonth(t):
 			yy = t.year
 			mm = t.month
-			murl = 'https://www.jefit.com/members/user-logs/?yy=' + str(yy) + '&mm=' + str(mm) + \
-			    '&xid=' + str(self.user)
-			msoup = br.tryPage(murl, soup=True)
-			mpage = MonthPage(msoup, getusername=False, getfriends=True, getlogs=True, user=self.user, 
-			                  singleFriend=True)
+			msoup = br.tryPage('https://www.jefit.com/members/user-logs/?yy=' + str(yy) + '&mm=' + str(mm) + '&xid=' + str(self.user), soup=True)
+			mpage = MonthPage(msoup, getusername=False, getfriends=True, getlogs=True, user=self.user, singleFriend=True)
 			return(mpage.dbrows, set(mpage.friends))
 			
 		#intially scraped month
@@ -1145,8 +1091,7 @@ class ProfilePage:
 				friends = friends.union(dmpFriends)
 				scraped.append(t)
 				emp = (len(dmpRows) == 0)
-				print('Middle scrape (' + str(self.user) + ') ' + str(t.year) + '-' + str(t.month) + \
-				      ' (empty)'*emp + ' (full)'*(1-emp))
+				print('Middle scrape (' + str(self.user) + ') ' + str(t.year) + '-' + str(t.month) + ' (empty)'*emp + ' (full)'*(1-emp))
 		
 		#after last log
 		misses = 0
@@ -1162,12 +1107,10 @@ class ProfilePage:
 				scraped.append(t)
 				if (len(dmpRows) == 0):
 					misses = misses + 1
-					print('Foward scrape (' + str(user) + '). Empty month: ' + str(t.year) + '-' + \
-					      str(t.month) + '\t\t(' + str(misses) + ' misses)')
+					print('Foward scrape (' + str(user) + '). Empty month: ' + str(t.year) + '-' + str(t.month) + '\t\t(' + str(misses) + ' misses)')
 				else:
 					misses = 0
-					print('Foward scrape (' + str(user) + '). Full month: ' + str(t.year) + '-' + \
-					      str(t.month) + '\t\t(' + str(misses) + ' misses)')
+					print('Foward scrape (' + str(user) + '). Full month: ' + str(t.year) + '-' + str(t.month) + '\t\t(' + str(misses) + ' misses)')
 		
 		#before first log
 		mint = datetime.fromordinal(734503)
@@ -1184,12 +1127,10 @@ class ProfilePage:
 				scraped.append(t)
 				if (len(dmpRows) == 0):
 					misses = misses + 1
-					print('Backward scrape(' + str(user) + '). Empty month: ' + str(t.year) + '-' + \
-					      str(t.month) + '\t\t(' + str(misses) + ' misses)')
+					print('Backward scrape(' + str(user) + '). Empty month: ' + str(t.year) + '-' + str(t.month) + '\t\t(' + str(misses) + ' misses)')
 				else:
 					misses = 0
-					print('Backward scrape(' + str(user) + '). Full month: ' + str(t.year) + '-' + \
-					      str(t.month) + '\t\t(' + str(misses) + ' misses)')
+					print('Backward scrape(' + str(user) + '). Full month: ' + str(t.year) + '-' + str(t.month) + '\t\t(' + str(misses) + ' misses)')
 		
 		uscraped = []
 		for t in scraped:
@@ -1278,8 +1219,7 @@ class LogPage:
 		
 		#get body stats
 		self.bodyStats = dict()
-		bps = ['weight', 'fatpercent', 'height', 'chest', 'waist', 'arms', 'shoulders', 
-		       'forearms', 'neck', 'hips', 'thighs', 'calves']
+		bps = ['weight', 'fatpercent', 'height', 'chest', 'waist', 'arms', 'shoulders', 'forearms', 'neck', 'hips', 'thighs', 'calves']
 		for bp in bps:
 			stat = self.soup.find('a', {'href':'/my-jefit/chart/?type=1&bodypart=' + bp})
 			if stat is not None:
@@ -1309,17 +1249,12 @@ class LogPage:
 		ses = self.soup.find('div', {'class':'workout-session'})
 		if ses is not None:
 			self.summary['jefitid1'] = int(ses['id'].strip('workout-session'))
-			cats = ['Session Length', 'Actual Workout', 'Wasted Time', 'Rest Timer', 
-			        'Exercises Done', 'Weight Lifted']
+			cats = ['Session Length', 'Actual Workout', 'Wasted Time', 'Rest Timer', 'Exercises Done', 'Weight Lifted']
 			divs = ses.findAll('div', {'style':'width:120px; float:left; margin-left:10px;'})
 			for div in divs:
 				try:
-					cat = div.find(
-					    'div', {'style':re.compile('float:left; width:120px;?')}
-					    ).text.lower().replace(' ', '_')
-					val = div.find(
-					    'div', {'style':re.compile('float:left; color:#666666; margin-top:5px; width:120px;?')}
-					    ).text.lower()
+					cat = div.find('div', {'style':re.compile('float:left; width:120px;?')}).text.lower().replace(' ', '_')
+					val = div.find('div', {'style':re.compile('float:left; color:#666666; margin-top:5px; width:120px;?')}).text.lower()
 					self.summary[cat] = val
 				except AttributeError:
 					pass
@@ -1336,8 +1271,7 @@ class LogPage:
 				en = en + 1
 		if en > 0:
 			with open(settings.errorlog, 'ab') as errorOut:
-				errorOut.write(unicode(ctime()) + u' \t Scraped log that appears to be empty (' + str(en) + \
-				               ' categories): ' + url + '\n')
+				errorOut.write(unicode(ctime()) + u' \t Scraped log that appears to be empty (' + str(en) + ' categories): ' + url + '\n')
 		if 'weight_lifted' in self.summary.keys():
 			dmp = self.splitOnUnit(self.summary['weight_lifted'])
 			self.summary['weight_lifted'] = dmp[0]
@@ -1382,10 +1316,7 @@ class LogPage:
 						inputlogs = li.findAll('input', {'class':'inputlog'})
 						for inputlog in inputlogs:
 							self.workouts[n]['sets'][0][inputlog['name']] = int(inputlog['value'])
-						dmpnum = self.workouts[n]['sets'][0]['hour']*60**2 + \
-						    self.workouts[n]['sets'][0]['min']*60 + \
-						    self.workouts[n]['sets'][0]['sec']
-						self.workouts[n]['sets'][0]['totalexseconds'] = int(dmpnum)
+						self.workouts[n]['sets'][0]['totalexseconds'] = int(self.workouts[n]['sets'][0]['hour']*60**2 + self.workouts[n]['sets'][0]['min']*60 + self.workouts[n]['sets'][0]['sec'])
 						
 			else:
 				maxset = 0
@@ -1402,10 +1333,7 @@ class LogPage:
 						self.workouts[n]['sets'][m]['hour'] = int(Set.find('input', {'name':'hour'})['value'])
 						self.workouts[n]['sets'][m]['min'] = int(Set.find('input', {'name':'min'})['value'])
 						self.workouts[n]['sets'][m]['sec'] = int(Set.find('input', {'name':'sec'})['value'])
-						dmpnum = self.workouts[n]['sets'][m]['hour']*60**2 + \
-						    self.workouts[n]['sets'][m]['min']*60 + \
-						    self.workouts[n]['sets'][m]['sec']
-						self.workouts[n]['sets'][m]['totalexseconds'] = int(dmpnum)
+						self.workouts[n]['sets'][m]['totalexseconds'] = int(self.workouts[n]['sets'][m]['hour']*60**2 + self.workouts[n]['sets'][m]['min']*60 + self.workouts[n]['sets'][m]['sec'])
 		
 		#handle missing data in custom exercises
 		for n in self.workouts:
@@ -1459,125 +1387,29 @@ class Tables:
 	def setuptables(self):
 		self.tables = db.listTables()
 		if self.users not in self.tables:
-			db.insertTable(self.users, [('userid', 'INTEGER'), 
-			                            ('username', 'text'), 
-			                            ('public', 'boolean'), 
-			                            ('scraped', 'boolean', False), 
-			                            ('firstdate', 'integer'), 
-			                            ('lastdate', 'integer'), 
-			                            ('db_timestamp', 'TIMESTAMP')], 
-			               pkey=0, showError=True)
+			db.insertTable(self.users, [('userid', 'INTEGER'), ('username', 'text'), ('public', 'boolean'), ('scraped', 'boolean', False), ('firstdate', 'integer'), ('lastdate', 'integer'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
 		if self.friends not in self.tables:
-			db.insertTable(self.friends, [('rowid', 'SERIAL'), 
-			                              ('user1', 'INTEGER'), 
-			                              ('user2', 'INTEGER'), 
-			                              ('db_timestamp', 'TIMESTAMP')], 
-			               pkey=0, showError=True)
+			db.insertTable(self.friends, [('rowid', 'SERIAL'), ('user1', 'INTEGER'), ('user2', 'INTEGER'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
 		if self.logs not in self.tables:
-			db.insertTable(self.logs, [('logid', 'SERIAL'), 
-			                           ('userid_id', 'INTEGER'), 
-			                           ('url', 'TEXT'), 
-			                           ('date', 'INTEGER'), 
-			                           ('scraped', 'BOOLEAN', False), 
-			                           ('db_timestamp', 'TIMESTAMP')], 
-			               pkey=0, showError=True)
+			db.insertTable(self.logs, [('logid', 'SERIAL'), ('userid_id', 'INTEGER'), ('url', 'TEXT'), ('date', 'INTEGER'), ('scraped', 'BOOLEAN', False), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
 		if self.bodystats not in self.tables:
-			db.insertTable(self.bodystats, [('logid_id', 'INTEGER'), 
-			                                ('weight', 'REAL'), 
-			                                ('weight_unit', 'TEXT'), 
-			                                ('length_unit', 'TEXT'), 
-			                                ('fatpercent', 'REAL'), 
-			                                ('bmi', 'REAL'), 
-			                                ('chest', 'REAL'), 
-			                                ('shoulders', 'REAL'), 
-			                                ('hips', 'REAL'), 
-			                                ('waist', 'REAL'), 
-			                                ('forearms', 'REAL'), 
-			                                ('thighs', 'REAL'), 
-			                                ('arms', 'REAL'), 
-			                                ('neck', 'REAL'), 
-			                                ('calves', 'REAL'), 
-			                                ('height', 'REAL'), 
-			                                ('height_unit', 'TEXT'), 
-			                                ('db_timestamp', 'TIMESTAMP')], 
-			               pkey=0, showError=True)
+			db.insertTable(self.bodystats, [('logid_id', 'INTEGER'), ('weight', 'REAL'), ('weight_unit', 'TEXT'), ('length_unit', 'TEXT'), ('fatpercent', 'REAL'), ('bmi', 'REAL'), ('chest', 'REAL'), ('shoulders', 'REAL'), ('hips', 'REAL'), ('waist', 'REAL'), ('forearms', 'REAL'), ('thighs', 'REAL'), ('arms', 'REAL'), ('neck', 'REAL'), ('calves', 'REAL'), ('height', 'REAL'), ('height_unit', 'TEXT'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
 		if self.userinfo not in self.tables:
-			db.insertTable(self.userinfo, [('userid_id', 'INTEGER'), 
-			                               ('birthyear', 'SMALLINT'), 
-			                               ('location', 'TEXT'), 
-			                               ('male', 'BOOLEAN'), 
-			                               ('nfriends', 'INTEGER'), 
-			                               ('firstworkout', 'INTEGER'), 
-			                               ('lastworkout', 'INTEGER'), 
-			                               ('db_timestamp', 'TIMESTAMP')], 
-			               pkey=0, showError=True)
+			db.insertTable(self.userinfo, [('userid_id', 'INTEGER'), ('birthyear', 'SMALLINT'), ('location', 'TEXT'), ('male', 'BOOLEAN'), ('nfriends', 'INTEGER'), ('firstworkout', 'INTEGER'), ('lastworkout', 'INTEGER'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
 		if self.logsummary not in self.tables:
-			db.insertTable(self.logsummary, [('logid_id', 'INTEGER'), 
-			                                 ('session_length', 'INTEGER'), 
-			                                 ('rest_timer', 'INTEGER'), 
-			                                 ('actual_workout', 'INTEGER'), 
-			                                 ('wasted_time', 'INTEGER'), 
-			                                 ('exercises_done', 'INTEGER'), 
-			                                 ('weight_lifted', 'REAL'), 
-			                                 ('weight_lifted_unit', 'TEXT'), 
-			                                 ('jefitdate', 'TEXT'), 
-			                                 ('jefitid1', 'INTEGER'), 
-			                                 ('jefitid2', 'INTEGER'), 
-			                                 ('db_timestamp', 'TIMESTAMP')], 
-			               pkey=0, showError=True)
+			db.insertTable(self.logsummary, [('logid_id', 'INTEGER'), ('session_length', 'INTEGER'), ('rest_timer', 'INTEGER'), ('actual_workout', 'INTEGER'), ('wasted_time', 'INTEGER'), ('exercises_done', 'INTEGER'), ('weight_lifted', 'REAL'), ('weight_lifted_unit', 'TEXT'), ('jefitdate', 'TEXT'), ('jefitid1', 'INTEGER'), ('jefitid2', 'INTEGER'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
 		if self.months not in self.tables:
-			db.insertTable(self.months, [('rowid', 'SERIAL'), 
-			                             ('userid_id', 'INTEGER'), 
-			                             ('scrapeddate', 'INTEGER'), 
-			                             ('db_timestamp', 'TIMESTAMP')], 
-			               pkey=0, showError=True)
+			db.insertTable(self.months, [('rowid', 'SERIAL'), ('userid_id', 'INTEGER'), ('scrapeddate', 'INTEGER'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
 		if self.exercises not in self.tables:
-			db.insertTable(self.exercises, [('exid', 'INTEGER'), 
-			                                ('logrowid', 'INTEGER'), 
-			                                ('myrecord', 'FLOAT'), 
-			                                ('logid_id', 'INTEGER'), 
-			                                ('ename', 'TEXT'), 
-			                                ('recordtype', 'INTEGER'), 
-			                                ('exerciseid', 'INTEGER'), 
-			                                ('belongsys', 'INTEGER'), 
-			                                ('bs', 'INTEGER'), 
-			                                ('date', 'TEXT'), 
-			                                ('eid', 'INTEGER'), 
-			                                ('jefitlogid', 'INTEGER'), 
-			                                ('pdate', 'INTEGER'), 
-			                                ('db_timestamp', 'TIMESTAMP')], 
-			               pkey=0, showError=True)
+			db.insertTable(self.exercises, [('exid', 'INTEGER'), ('logrowid', 'INTEGER'), ('myrecord', 'FLOAT'), ('logid_id', 'INTEGER'), ('ename', 'TEXT'), ('recordtype', 'INTEGER'), ('exerciseid', 'INTEGER'), ('belongsys', 'INTEGER'), ('bs', 'INTEGER'), ('date', 'TEXT'), ('eid', 'INTEGER'), ('jefitlogid', 'INTEGER'), ('pdate', 'INTEGER'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
 		if self.sets not in self.tables:
-			db.insertTable(self.sets, [('setid', 'SERIAL'), 
-			                           ('exid_id', 'INTEGER'), 
-			                           ('setnumber', 'INTEGER'), 
-			                           ('rep', 'INTEGER'), 
-			                           ('weight', 'REAL'), 
-			                           ('hour', 'INTEGER'), 
-			                           ('min', 'INTEGER'), 
-			                           ('sec', 'INTEGER'), 
-			                           ('totalexseconds', 'INTEGER'), 
-			                           ('distance', 'REAL'), 
-			                           ('speed', 'REAL'), 
-			                           ('lap_rep', 'REAL'), 
-			                           ('calorie', 'REAL'), 
-			                           ('distance_unit', 'TEXT'), 
-			                           ('speed_unit', 'TEXT'), 
-			                           ('lap_rep_unit', 'TEXT'), 
-			                           ('calorie_unit', 'TEXT'), 
-			                           ('db_timestamp', 'TIMESTAMP')], 
-			               pkey=0, showError=True)
+			db.insertTable(self.sets, [('setid', 'SERIAL'), ('exid_id', 'INTEGER'), ('setnumber', 'INTEGER'), ('rep', 'INTEGER'), ('weight', 'REAL'), ('hour', 'INTEGER'), ('min', 'INTEGER'), ('sec', 'INTEGER'), ('totalexseconds', 'INTEGER'), ('distance', 'REAL'), ('speed', 'REAL'), ('lap_rep', 'REAL'), ('calorie', 'REAL'), ('distance_unit', 'TEXT'), ('speed_unit', 'TEXT'), ('lap_rep_unit', 'TEXT'), ('calorie_unit', 'TEXT'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
 		if self.notes not in self.tables:
-			db.insertTable(self.notes, [('noteid', 'SERIAL'), 
-			                            ('logid_id', 'INTEGER'), 
-			                            ('note', 'TEXT'), 
-			                            ('db_timestamp', 'TIMESTAMP')], 
-			               pkey=0, showError=True)
+			db.insertTable(self.notes, [('noteid', 'SERIAL'), ('logid_id', 'INTEGER'), ('note', 'TEXT'), ('db_timestamp', 'TIMESTAMP')] , pkey=0, showError=True)
 	
 		computers = heroku.getValues('computer_name', 'monitor_computer')
 		if settings.computer not in computers:
-			heroku.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 
-			                 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
+			heroku.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
 	
 #
 # **********************************************************************************************************
@@ -1590,8 +1422,7 @@ db = database(settings.dbconfig)
 heroku = database(settings.herokuconfig)
 
 # open browser and login to Jefit
-br = browser(path=settings.dropboxPath + 'Data Incubator/Project/Jefit/allusers/', 
-             delayLambda=settings.delayLambda)
+br = browser(path=settings.dropboxPath + 'Data Incubator/Project/Jefit/allusers/', delayLambda=settings.delayLambda)
 br.login()
 
 # set up tables
@@ -1616,8 +1447,7 @@ if settings.scrapeUsers:
 		user = Q.pop()
 		
 		#hit user page
-		turl = 'https://www.jefit.com/members/user-logs/?yy=' + year + '&mm=' + month + '&xid=' + str(user)
-		soup = br.tryPage(turl,soup=True)
+		soup = br.tryPage('https://www.jefit.com/members/user-logs/?yy=' + year + '&mm=' + month + '&xid=' + str(user),soup=True)
 		monthPage = MonthPage(soup, user=user)
 		
 		#write users to database
@@ -1644,8 +1474,7 @@ if settings.scrapeUsers:
 		
 		#print progress
 		try:
-			print(u'Queued up ' + u'non-'*(1-monthPage.public) + u'public user ' + \
-			      monthPage.username + u' (' + unicode(user) + u').')
+			print(u'Queued up ' + u'non-'*(1-monthPage.public) + u'public user ' + monthPage.username + u' (' + unicode(user) + u').')
 		except UnicodeEncodeError:
 			pass
 		print('Iteration took ' + str(datetime.now()-t) + ' ' + datetime.ctime(datetime.now()))
@@ -1718,6 +1547,9 @@ if settings.scrapeLogs:
 	Q = logQueue(settings.onlyEven)
 	t = datetime.now()
 	while not Q.isempty():
+		
+		#cardio ID: 9060, https://www.jefit.com/members/user-logs/log/?xid=2254954&dd=2015-01-25
+		
 		
 		# get next user
 		s = datetime.now()
