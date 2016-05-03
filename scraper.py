@@ -54,7 +54,7 @@ class Settings:
 	#----------------------------------------------------------------------
 	def __init__(self):
 		#Defaults
-		self.debug = False
+		self.debug = True
 		self.bannedIP = None
 		self.runlocal = False
 		self.runLAN = False
@@ -63,7 +63,8 @@ class Settings:
 		self.scrapeMonths = False
 		self.scrapeLogs = False
 		self.onlyEven = None
-		self.chkFreq = 60*5
+		self.chkFreq = 10
+		#60*5
 		self.iterations = 0
 		# machine specific variables
 		self.dropboxPath = environ['DROPBOX_PATH']
@@ -492,21 +493,21 @@ class database:
 					if not (isinstance(x, list) or isinstance(x, tuple)):
 						x = [x]
 					return x
-				changeVars = listMe(changeVars)
-				newVals = listMe(newVals)
+				self.changeVars = listMe(self.changeVars)
+				self.newVals = listMe(self.newVals)
 				changes = ''
-				for var, val in zip(changeVars, newVals):
+				for var, val in zip(self.changeVars, self.newVals):
 					q = '' + "'"*(isinstance(val, str) or isinstance(val, unicode))
 					changes = "{0}{1} = {2}{3}{4}, ".format(changes, var, q, str(val), q)
-				changes.strip(', ')
+				changes = changes.strip(', ')
 				q = '' + "'"*(isinstance(self.targetVal, str) or isinstance(self.targetVal, unicode))
 				self.cur.execute("UPDATE {0} SET {1} WHERE {2} = {3}{4}{5}".format(self.thisTable, changes, self.selVar, q, str(self.targetVal), q))
 				self.con.commit()
 				return True
 		dummy = Dummy()
 		dummy.thisTable = thisTable
-		dummy.changeVar = changeVar
-		dummy.newVal = newVal
+		dummy.changeVars = changeVars
+		dummy.newVals = newVals
 		dummy.selVar = selVar
 		dummy.targetVal = targetVal
 		dummy.safeVal = self.safeVal
@@ -529,16 +530,17 @@ class database:
 					#self.updateField('monitor_computer', 'activity', 'now', 'computer_name', settings.computer)
 					#old_ip = br.ip
 					br.getIP()
-					self.updateField('monitor_computer', ['activity', 'ip', 'speed'], ['now', br.ip, self.speed], 'computer_name', settings.computer)
+					self.updateMany('monitor_computer', ['activity', 'ip', 'speed'], ['now', br.ip, self.speed], 'computer_name', settings.computer)
 					#if old_ip != br.ip:
 						#self.updateField('monitor_computer', 'ip', br.ip, 'computer_name', settings.computer)
 				return True
 		settings.iterations = settings.iterations + 1
 		if (datetime.now() - self.alivechk).total_seconds() > settings.chkFreq:
 			dummy = Dummy()
-			dummy.speed = (datetime.now() - self.alivechk).total_seconds()/settings.iterations
+			dummy.speed = 60*settings.iterations/(datetime.now() - self.alivechk).total_seconds()
 			self.alivechk = datetime.now()
 			dummy.updateField = self.updateField
+			dummy.updateMany = self.updateMany
 			dummy.write2db = self.write2db
 			if not debug:
 				return self.timeoutHandler(dummy)
@@ -710,7 +712,7 @@ class logQueue:
 		return self.queue
 
 	def refill(self):
-		self.queue = db.getValues(('logid', 'url', 'userid_id'), tables.logs, sels=[('scraped', '=', False)], onlyEven=self.onlyEven, limit=self.limit)
+		self.queue = db.getSubset(('logid', 'url', 'userid_id'), tables.logs, sels=[('scraped', '=', False)], onlyEven=self.onlyEven, limit=self.limit)
 		#dmp = db.getValues(('logid', 'url', 'userid_id'), tables.logs, sels=[('scraped', '=', False)], limit=25000)
 		#if self.onlyEven is not None:
 			#self.queue = []
