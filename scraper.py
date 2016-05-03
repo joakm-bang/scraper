@@ -306,7 +306,7 @@ class database:
 		
 	
 	#write to database
-	def write2db(self, thisDic, thisTable, useTimeStamp = True, insertKeys=False, debug=settings.debug):	
+	def write2db(self, thisDic, thisTable, useTimeStamp = True, insertKeys=False, debug=settings.debug, commit=True):	
 		class Dummy:
 			def execute(self):		
 				def makeUnicode(val):
@@ -348,7 +348,8 @@ class database:
 				    keyStr.strip(u','), 
 				    Ss.strip(u',')
 				    ), tuple(inserts))
-				self.con.commit()
+				if self.commit:
+					self.con.commit()
 				return True
 		
 		dummy = Dummy()
@@ -362,6 +363,7 @@ class database:
 		dummy.cur = self.cur		
 		dummy.getColumns = self.getColumns
 		dummy.safeVal = self.safeVal
+		dummy.commit = commit
 		if not debug:
 			return self.timeoutHandler(dummy)
 		else:
@@ -423,7 +425,7 @@ class database:
 
 	
 	# insert list of tuples in table
-	def insertMany(self, table, cols, values, debug=settings.debug):
+	def insertMany(self, table, cols, values, debug=settings.debug, commit=True):
 		class Dummy:
 			def execute(self):		
 				if len(self.values) == 0:
@@ -432,7 +434,8 @@ class database:
 				cs = ','.join(self.cols)
 				insert_query = 'insert into {0} ({1}) values {2}'.format(self.table, cs, ss)		
 				self.cur.execute(insert_query, values)
-				self.con.commit()
+				if self.commit:
+					self.con.commit()
 				return True
 		dummy = Dummy()
 		dummy.table = table
@@ -440,6 +443,7 @@ class database:
 		dummy.values = values
 		dummy.con = self.con
 		dummy.cur = self.cur
+		dummy.commit = commit
 		if not debug:
 			return self.timeoutHandler(dummy)
 		else:
@@ -1087,7 +1091,7 @@ class ProfilePage:
 					self.oldfriends.add(friend)
 			self.newfriends = friends
 	
-	def writeUserInfo(self):
+	def writeUserInfo(self, commit=True):
 		#write user info
 		outDict = dict()
 		outDict['userid_id'] = self.user
@@ -1098,7 +1102,7 @@ class ProfilePage:
 		if self.firstWO is not None and self.lastWO is not None:
 			outDict['firstworkout'] = datetime.toordinal(self.firstWO)
 			outDict['lastworkout'] = datetime.toordinal(self.lastWO)
-		db.write2db(outDict, tables.userinfo)
+		db.write2db(outDict, tables.userinfo, commit=commit)
 
 	def writeNewFriends(self):
 		#add new friends
@@ -1686,14 +1690,14 @@ if settings.scrapeMonths:
 			fs.append((user, f))
 		db.insertMany(tables.friends, ('user1', 'user2'), fs)
 		
-		#write logs
-		db.insertMany(tables.logs, ('userid_id', 'url', 'date'), links)	
+		#write logs (delay commit to avoid nasty things if something happens in the next few lines)
+		db.insertMany(tables.logs, ('userid_id', 'url', 'date'), links, commit=False)	
 		
 		#write scraped months
-		db.insertMany(tables.months, ('userid_id', 'scrapeddate'), scraped)
+		db.insertMany(tables.months, ('userid_id', 'scrapeddate'), scraped, commit=False)
 		
 		#write userinfo
-		profile.writeUserInfo()
+		profile.writeUserInfo(commit=False)
 		
 		#don't scrape again for now
 		db.updateField(tables.users, 'scraped', True, 'userid', user)
