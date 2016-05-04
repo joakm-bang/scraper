@@ -66,6 +66,8 @@ class Settings:
 		self.onlyEven = None
 		self.chkFreq = 60*5
 		self.iterations = 0
+		self.ul = None
+		self.ll = None
 		# machine specific variables
 		self.dropboxPath = environ['DROPBOX_PATH']
 		self.computer = environ['COMPUTER_NAME']
@@ -763,10 +765,19 @@ class logQueue:
 		return self.queue
 
 	def refill(self):
-		self.queue = db.getSubset(('logid', 'url', 'userid_id'), 
-		                          tables.logs, sels=[('scraped', '=', False)], 
-		                          onlyEven=self.onlyEven, 
-		                          limit=self.limit)
+		if self.ul is None or self.ll is None:
+			self.queue = db.getSubset(('logid', 'url', 'userid_id'), 
+			                          tables.logs, sels=[('scraped', '=', False)], 
+			                          onlyEven=self.onlyEven, 
+			                          limit=self.limit)
+		else:
+			self.queue = db.getSubset(('logid', 'url', 'userid_id'), 
+			                          tables.logs, sels=[('scraped', '=', False), 
+			                                             ('logid', '<=', self.ul), 
+			                                             ('logid', '>=', self.ll)], 
+			                          onlyEven=self.onlyEven, 
+			                          limit=self.limit)
+			
 
 	def len(self):
 		return len(self.queue)
@@ -1724,7 +1735,7 @@ timeMe = True
 if settings.scrapeLogs:
 	
 	#queue up unscraped logs
-	Q = logQueue(settings.onlyEven)
+	Q = logQueue(settings.onlyEven, ul=settings.ul, ll=settings.ll)
 	t = datetime.now()
 	while not Q.isempty():
 		
