@@ -78,7 +78,7 @@ class Settings:
 		elif self.computer == 'server':   #Server (logs, uneven, < 200000)
 			self.scrapeLogs = True
 			self.onlyEven = False
-			self.delayLambda = 10
+			self.delayLambda = 7
 			self.ll = 0
 			self.ul = 200000
 		elif self.computer == 'hemma':   # Hemma  (logs, uneven, > 200000)
