@@ -59,7 +59,7 @@ class Settings:
 		self.bannedIP = None
 		self.runlocal = False
 		self.runLAN = False
-		self.delayLambda = 5
+		self.delayLambda = 4
 		self.scrapeUsers = False
 		self.scrapeMonths = False
 		self.scrapeLogs = False
@@ -74,7 +74,7 @@ class Settings:
 		if self.computer == 'kontoret':  # Kontoret (months, any)
 			self.scrapeMonths = True
 			self.onlyEven = None
-			self.delayLambda = 10
+			self.delayLambda = 7
 		elif self.computer == 'server':   #Server (logs, uneven, < 200000)
 			self.scrapeLogs = True
 			self.onlyEven = False
@@ -1730,7 +1730,7 @@ def timeIt(s, text):
 	print(text)
 	print('Time:\t' + str(x))
 	return datetime.now()
-timeMe = True
+timeMe = False
 
 if settings.scrapeLogs:
 	
