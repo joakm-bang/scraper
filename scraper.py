@@ -1402,6 +1402,7 @@ class LogPage:
 					weight = Set.find('input', {'class':'inputlog decimal'})
 					if weight is not None:
 						self.workouts[n]['sets'][m][weight['name']] = self.floatMe(weight['value'])
+						self.workouts[n]['sets'][m]['weight_unit'] = Set.text.split(':')[1].strip('Reps')
 					reps = Set.find('input', {'class':'inputlog'})
 					if reps is not None:			
 						self.workouts[n]['sets'][m][reps['name']] = self.floatMe(reps['value'])
