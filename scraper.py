@@ -1239,12 +1239,14 @@ class LogPage:
 			self.summary['logid_id'] = self.logid
 			db.write2db(self.summary, tables.logsummary)
 		if notes and self.notes != {}:
+			nid = self.logid - 1
 			for k in self.notes.keys():
+				nid = nid + 1
 				settings.note_inc = settings.note_inc + 2
 				dmp = dict()
 				dmp['logid_id'] = self.logid
 				dmp['note'] = self.notes[k]
-				dmp['noteid'] = settings.note_inc
+				dmp['noteid'] = nid
 				dmp['db_timestamp'] = 'now'
 				db.write2db(dmp, tables.notes)
 		
