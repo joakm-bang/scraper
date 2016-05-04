@@ -69,18 +69,22 @@ class Settings:
 		# machine specific variables
 		self.dropboxPath = environ['DROPBOX_PATH']
 		self.computer = environ['COMPUTER_NAME']
-		if self.computer == 'kontoret':  # Kontoret (months, even)
+		if self.computer == 'kontoret':  # Kontoret (months, any)
 			self.scrapeMonths = True
-			self.onlyEven = True
+			self.onlyEven = None
 			self.delayLambda = 10
-		elif self.computer == 'server':   #Server (logs, uneven)
+		elif self.computer == 'server':   #Server (logs, uneven, < 200000)
 			self.scrapeLogs = True
 			self.onlyEven = False
 			self.delayLambda = 10
-		elif self.computer == 'hemma':   # Hemma (months, uneven)
+			slef.ll = 0
+			slef.ul = 200000
+		elif self.computer == 'hemma':   # Hemma  (logs, uneven, > 200000)
 			self.runlocal = True
-			self.scrapeMonths = True
+			self.scrapeLogs = True
 			self.onlyEven = False
+			self.ll = 200001
+			self.ul = 2000000
 		elif self.computer == 'toshiban':   # Toshiban (users, even)
 			self.scrapeUsers = True
 			self.onlyEven = True
