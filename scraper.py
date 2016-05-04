@@ -1246,7 +1246,7 @@ class LogPage:
 				dmp = dict()
 				dmp['logid_id'] = self.logid
 				dmp['note'] = self.notes[k]
-				dmp['noteid'] = nid
+				#dmp['noteid'] = nid
 				dmp['db_timestamp'] = 'now'
 				db.write2db(dmp, tables.notes)
 		
