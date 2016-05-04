@@ -77,8 +77,8 @@ class Settings:
 			self.scrapeLogs = True
 			self.onlyEven = False
 			self.delayLambda = 10
-			slef.ll = 0
-			slef.ul = 200000
+			self.ll = 0
+			self.ul = 200000
 		elif self.computer == 'hemma':   # Hemma  (logs, uneven, > 200000)
 			self.runlocal = True
 			self.scrapeLogs = True
