@@ -1601,6 +1601,23 @@ class Tables:
 			heroku.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 
 			                 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
 	
+
+class Backupsleeper:
+	def __init__(self, doit = True):		
+		self.doit = doit
+	
+	def bunap(self):
+		t = datetime.now()
+		if t.hour == 3 and t. minute > 45:
+			if self.doit:
+				td = relativedelta(
+					datetime.fromordinal(datetime.toordinal(datetime.now())) + relativedelta(hours=4), 
+					datetime.now())
+				print('Backup time. Sleeping until 4 a.m.')
+				sleep(td.minutes*60 + td.seconds)
+		
+		
+	
 #
 # **********************************************************************************************************
 # * ------------------------------------------ Code starts here ------------------------------------------ *
@@ -1619,6 +1636,9 @@ br.login()
 # set up tables
 tables = Tables()
 db.setNoteCounter()
+
+#nap during backups
+busleeper = Backupsleeper()
 
 # ** Get list of members ** 
 if settings.scrapeUsers:
@@ -1665,6 +1685,7 @@ if settings.scrapeUsers:
 		Q.done.add(user)
 		
 		#print progress
+		busleeper.bunap()
 		try:
 			print(u'Queued up ' + u'non-'*(1-monthPage.public) + u'public user ' + \
 			      monthPage.username + u' (' + unicode(user) + u').')
@@ -1720,6 +1741,7 @@ if settings.scrapeMonths:
 		#don't scrape again for now
 		db.updateField(tables.users, 'scraped', True, 'userid', user)
 		
+		busleeper.bunap()
 		if Q.isempty():
 			Q.refill()
 
@@ -1763,6 +1785,7 @@ if settings.scrapeLogs:
 		if timeMe: s = timeIt(s, 'Set scraped = True')
 		
 		#print progress
+		busleeper.bunap()
 		print(' Scraped log ' + str(logid) + ' at ' + datetime.ctime(datetime.now()))
 		print('Iteration took ' + str(datetime.now()-t) + '\n'*timeMe)
 		t = datetime.now()
