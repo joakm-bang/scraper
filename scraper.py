@@ -74,11 +74,11 @@ class Settings:
 		if self.computer == 'kontoret':  # Kontoret (months, any)
 			self.scrapeMonths = True
 			self.onlyEven = None
-			self.delayLambda = 7
+			self.delayLambda = 6
 		elif self.computer == 'server':   #Server (logs, uneven, < 200000)
 			self.scrapeLogs = True
 			self.onlyEven = False
-			self.delayLambda = 7
+			self.delayLambda = 6
 			self.ll = 0
 			self.ul = 200000
 		elif self.computer == 'hemma':   # Hemma  (logs, uneven, > 200000)
