@@ -925,6 +925,7 @@ class browser:
 		goon = True
 		while n < maxN and goon:
 			try:
+				n = n + 1
 				self.ip = load(urlopen('http://jsonip.com'))['ip']
 				goon = False
 			except:
