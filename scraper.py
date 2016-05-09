@@ -1761,7 +1761,7 @@ def timeIt(s, text):
 	print(text)
 	print('Time:\t' + str(x))
 	return datetime.now()
-timeMe = False
+timeMe = True
 
 if settings.scrapeLogs:
 	
