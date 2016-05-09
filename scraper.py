@@ -836,7 +836,11 @@ class browser:
 		self.br.set_handle_redirect(True)
 		self.br.set_handle_referer(True)
 		self.br.set_handle_robots(False)
+		
 		self.br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
+		# Handle weird timeout issue
+		self.br.set_handle_refresh(False)
+		
 		self.br.addheaders = headers
 		
 	#----------------------------------------------------------------------
@@ -893,7 +897,9 @@ class browser:
 				if not noDelay:
 					self.delay()
 					self.t[1] = time()
-				self.br.open(targetURL)
+				#timeout issue
+				#self.br.open(targetURL)
+				self.br.open(targetURL, timeout=30)
 				self.t[2] = time()
 				if isinstance(doForm, int):
 					self.br.select_form(nr = doForm)
