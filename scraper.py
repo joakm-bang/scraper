@@ -856,7 +856,7 @@ class browser:
 
 	#----------------------------------------------------------------------
 	#Take a nap if you cannot access the webpage. Probably a timeout error.
-	def nap(self, errStr, err, napTime=120):
+	def nap(self, errStr, err, napTime=60):
 		try:
 			err = unicode(err)
 		except:
@@ -902,10 +902,13 @@ class browser:
 				if soup:
 					s = BeautifulSoup(self.br.response().read())
 				goon = False
+			except proxyerror as perr:
+				print('Proxy error')
+				self.nap('Proxy error', perr, napTime)
 			except Exception, err:
-				self.nap(mess, err, napTime)
 				if str(err) == u'HTTP Error 404: Not Found':
 					tryCount = maxtries + 5
+					self.nap(str(err), err, napTime)
 		heroku.imStillAlive() #announce activity
 		if soup and not goon:
 			return s
@@ -1754,7 +1757,7 @@ def timeIt(s, text):
 	print(text)
 	print('Time:\t' + str(x))
 	return datetime.now()
-timeMe = False
+timeMe = True
 
 if settings.scrapeLogs:
 	
