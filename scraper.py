@@ -71,16 +71,16 @@ class Settings:
 		# machine specific variables
 		self.dropboxPath = environ['DROPBOX_PATH']
 		self.computer = environ['COMPUTER_NAME']
-		if self.computer == 'kontoret':  # Kontoret (months, any)
-			self.scrapeMonths = True
-			self.onlyEven = None
-			self.delayLambda = 6
-		elif self.computer == 'server':   #Server (logs, uneven, < 200000)
+		if self.computer == 'kontoret':  # Kontoret (logs, uneven, < 200000)
 			self.scrapeLogs = True
 			self.onlyEven = False
 			self.delayLambda = 6
 			self.ll = 0
 			self.ul = 200000
+		elif self.computer == 'server':   #Server (months, any)
+			self.scrapeMonths = True
+			self.onlyEven = None
+			self.delayLambda = 6
 		elif self.computer == 'hemma':   # Hemma  (logs, uneven, > 200000)
 			self.runlocal = True
 			self.scrapeLogs = True
@@ -928,6 +928,7 @@ class browser:
 		goon = True
 		while n < maxN and goon:
 			try:
+				n = n + 1
 				self.ip = load(urlopen('http://jsonip.com'))['ip']
 				goon = False
 			except:
