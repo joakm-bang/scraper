@@ -845,11 +845,11 @@ class browser:
 		
 	#----------------------------------------------------------------------
 	# Don't hammer the server
-	def delay(self, minDelay=0.5, printDelay=True):
+	def delay(self, minDelay=0.5, maxDelay = 30, printDelay=True):
 		delta = (self.t[1]-self.t[0], self.t[2]-self.t[1], time() - self.t[2])
 		self.t[0] = time()
 		randomDelay = poisson(self.delayLambda)
-		napTime = max(randomDelay - delta[2],minDelay)
+		napTime = min(max(randomDelay - delta[2],minDelay), maxDelay)
 		if napTime > 0:
 			if printDelay:
 				print('Total delay:\t' + str(round(sum(delta),2)) + ' seconds\t(' + \
