@@ -68,15 +68,18 @@ class Settings:
 		self.iterations = 0
 		self.ul = None
 		self.ll = None
+		self.commitFreq = 1
 		# machine specific variables
 		self.dropboxPath = environ['DROPBOX_PATH']
 		self.computer = environ['COMPUTER_NAME']
 		if self.computer == 'kontoret':  # Kontoret (logs, uneven, < 200000)
+			#self.runlocal = True
 			self.scrapeLogs = True
 			self.onlyEven = False
 			self.ll = 0
 			self.ul = 200000			
 			self.delayLambda = 6
+			self.commitFreq = 5
 		elif self.computer == 'server':   #Server (months, any)
 			self.scrapeMonths = True
 			self.onlyEven = None
@@ -273,7 +276,7 @@ class database:
 
 
 	#update field in database
-	def updateField(self, thisTable, changeVar, newVal, selVar, targetVal, debug=settings.debug):
+	def updateField(self, thisTable, changeVar, newVal, selVar, targetVal, debug=settings.debug, commit=True):
 		class Dummy:
 			def execute(self):
 				newVal = unicode(self.newVal)
@@ -286,7 +289,8 @@ class database:
 					    newVal, 
 					    self.selVar, 
 					    unicode(self.targetVal)))
-					self.con.commit()
+					if self.commit:
+						self.con.commit()
 				else:
 					self.cur.execute("UPDATE {0} SET {1} = '{2}' WHERE {3} = '{4}'".format(
 					    self.thisTable, 
@@ -294,7 +298,8 @@ class database:
 					    self.safeVal(newVal), 
 					    self.selVar, 
 					    self.targetVal))
-					self.con.commit()
+					if self.commit:
+						self.con.commit()
 				return True
 		dummy = Dummy()
 		dummy.thisTable = thisTable
@@ -303,8 +308,9 @@ class database:
 		dummy.selVar = selVar
 		dummy.targetVal = targetVal
 		dummy.safeVal = self.safeVal
+		dummy.commit = commit
 		dummy.con = self.con
-		dummy.cur = self.cur		
+		dummy.cur = self.cur	
 		if not debug:
 			return self.timeoutHandler(dummy)
 		else:
@@ -1237,14 +1243,14 @@ class LogPage:
 			self.addNewFriends()
 		
 	
-	def writeIt(self, stats=True, summary=True, exercises=True, sets=True, notes = True, friends=True):
+	def writeIt(self, stats=True, summary=True, exercises=True, sets=True, notes = True, friends=True, commit=True):
 
 		if stats and self.bodyStats != {}:
 			self.bodyStats['logid_id'] = self.logid
-			db.write2db(self.bodyStats, tables.bodystats)
+			db.write2db(self.bodyStats, tables.bodystats, commit=commit)
 		if summary and self.summary != {}:
 			self.summary['logid_id'] = self.logid
-			db.write2db(self.summary, tables.logsummary)
+			db.write2db(self.summary, tables.logsummary, commit=commit)
 		if notes and self.notes != {}:
 			nid = self.logid - 1
 			for k in self.notes.keys():
@@ -1255,7 +1261,7 @@ class LogPage:
 				dmp['note'] = self.notes[k]
 				#dmp['noteid'] = nid
 				dmp['db_timestamp'] = 'now'
-				db.write2db(dmp, tables.notes)
+				db.write2db(dmp, tables.notes, commit=commit)
 		
 		for k in self.workouts.keys():
 			if exercises and self.workouts != {}:
@@ -1265,7 +1271,7 @@ class LogPage:
 				exid = ex['logrowid']
 				ex['exid'] = exid
 				ex['pdate'] = datetime.strptime(ex['date'], "%Y-%m-%d").toordinal()	
-				db.write2db(ex, tables.exercises)
+				db.write2db(ex, tables.exercises, commit=commit)
 				if sets and self.workouts[k]['sets'] != {}:
 					for l in self.workouts[k]['sets']:
 						Set = dict()
@@ -1273,7 +1279,7 @@ class LogPage:
 						Set['setnumber'] = l + 1
 						for m in self.workouts[k]['sets'][l].keys():
 							Set[m] = self.workouts[k]['sets'][l][m]
-						db.write2db(Set, tables.sets)						
+						db.write2db(Set, tables.sets, commit=commit)						
 
 		if friends and len(self.newfriends) > 0:
 			db.insertMany(tables.friends, ('user1', 'user2'), self.newfriends)
@@ -1609,19 +1615,19 @@ class Tables:
 			                 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
 	
 
-class Backupsleeper:
-	def __init__(self, doit = True):		
-		self.doit = doit
+#class Backupsleeper:
+	#def __init__(self, doit = True):		
+		#self.doit = doit
 	
-	def bunap(self):
-		t = datetime.now()
-		if t.hour == 3 and t. minute > 45:
-			if self.doit:
-				td = relativedelta(
-					datetime.fromordinal(datetime.toordinal(datetime.now())) + relativedelta(hours=4), 
-					datetime.now())
-				print('Backup time. Sleeping until 4 a.m.')
-				sleep(td.minutes*60 + td.seconds)
+	#def bunap(self):
+		#t = datetime.now()
+		#if t.hour == 3 and t. minute > 45:
+			#if self.doit:
+				#td = relativedelta(
+					#datetime.fromordinal(datetime.toordinal(datetime.now())) + relativedelta(hours=4), 
+					#datetime.now())
+				#print('Backup time. Sleeping until 4 a.m.')
+				#sleep(td.minutes*60 + td.seconds)
 		
 		
 	
@@ -1645,7 +1651,7 @@ tables = Tables()
 db.setNoteCounter()
 
 #nap during backups
-busleeper = Backupsleeper()
+#busleeper = Backupsleeper()
 
 # ** Get list of members ** 
 if settings.scrapeUsers:
@@ -1692,7 +1698,7 @@ if settings.scrapeUsers:
 		Q.done.add(user)
 		
 		#print progress
-		busleeper.bunap()
+		#busleeper.bunap()
 		try:
 			print(u'Queued up ' + u'non-'*(1-monthPage.public) + u'public user ' + \
 			      monthPage.username + u' (' + unicode(user) + u').')
@@ -1748,7 +1754,7 @@ if settings.scrapeMonths:
 		#don't scrape again for now
 		db.updateField(tables.users, 'scraped', True, 'userid', user)
 		
-		busleeper.bunap()
+		#busleeper.bunap()
 		if Q.isempty():
 			Q.refill()
 
@@ -1763,6 +1769,7 @@ def timeIt(s, text):
 	return datetime.now()
 timeMe = True
 
+commn = 0
 if settings.scrapeLogs:
 	
 	#queue up unscraped logs
@@ -1772,7 +1779,7 @@ if settings.scrapeLogs:
 		
 		# get next user
 		s = datetime.now()
-		[logid, url, user] = Q.pop()
+		[logid, url, user] = Q.pop(-10)
 		if timeMe: s = timeIt(s, 'Popped new user')
 		
 		#scrape log
@@ -1784,15 +1791,24 @@ if settings.scrapeLogs:
 		
 		
 		#write to database
-		log.writeIt()
-		if timeMe: s = timeIt(s, 'Wrote to database')		
+		commn += 1
+		if commn == settings.commitFreq:
+			commn = 0
+			log.writeIt(commit=True)
+			if timeMe: s = timeIt(s, 'Wrote to database')
+			#update database queue
+			db.updateField(tables.logs, 'scraped', True, 'logid', logid, commit=True)
+			if timeMe: s = timeIt(s, 'Set scraped = True')			
+		else:
+			log.writeIt(commit=False)
+			if timeMe: s = timeIt(s, 'Wrote to database without commit (' + str(commn) + ')')
+			db.updateField(tables.logs, 'scraped', True, 'logid', logid, commit=False)
+			if timeMe: s = timeIt(s, 'Set scraped = True without commit (' + str(commn) + ')')				
 		
-		#update database queue
-		db.updateField(tables.logs, 'scraped', True, 'logid', logid)
-		if timeMe: s = timeIt(s, 'Set scraped = True')
+
 		
 		#print progress
-		busleeper.bunap()
+		#busleeper.bunap()
 		print(' Scraped log ' + str(logid) + ' at ' + datetime.ctime(datetime.now()))
 		print('Iteration took ' + str(datetime.now()-t) + '\n'*timeMe)
 		t = datetime.now()
