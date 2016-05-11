@@ -71,9 +71,11 @@ class Settings:
 		# machine specific variables
 		self.dropboxPath = environ['DROPBOX_PATH']
 		self.computer = environ['COMPUTER_NAME']
-		if self.computer == 'kontoret':  # Kontoret (users, uneven)
-			self.scrapeUsers = True
-			self.onlyEven = False			
+		if self.computer == 'kontoret':  # Kontoret (logs, uneven, < 200000)
+			self.scrapeLogs = True
+			self.onlyEven = False
+			self.ll = 0
+			self.ul = 200000			
 			self.delayLambda = 6
 		elif self.computer == 'server':   #Server (months, any)
 			self.scrapeMonths = True
@@ -88,12 +90,10 @@ class Settings:
 		elif self.computer == 'toshiban':   # Toshiban (users, even)
 			self.scrapeUsers = True
 			self.onlyEven = True
-		elif self.computer == 'litenvit':   # Liten vit (logs, uneven, < 200000)
+		elif self.computer == 'litenvit':   # Liten vit (users, uneven)
 			self.runLAN = True
-			self.scrapeLogs = True
-			self.onlyEven = False
-			self.ll = 0
-			self.ul = 200000			
+			self.scrapeUsers = True
+			self.onlyEven = False						
 			self.bannedIP = '60.241.126.187'
 		elif self.computer == 'garderoben':   # Garderoben (logs, even)
 			self.runLAN = True
