@@ -476,7 +476,7 @@ class database:
 				selStr = 'WHERE '*(len(self.sels) > 0)
 				for i, sel in enumerate(listMe(self.sels)):
 					isString = (isinstance(sel[2], str) or isinstance(sel[2], unicode))
-					selStr = selStr + "{0} {1} {2} {3} {4} {5}".format(
+					selStr = selStr + "{0} {1} {2}{3}{4} {5}".format(
 					    sel[0], 
 					    sel[1], 
 					    "'"*isString, 
