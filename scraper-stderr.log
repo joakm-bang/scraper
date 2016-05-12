@@ -1,0 +1,86 @@
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 2, in <module>
+    import psycopg2
+ImportError: No module named psycopg2
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:835: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)

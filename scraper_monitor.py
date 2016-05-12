@@ -168,8 +168,10 @@ while True:
 	#get latest activity
 	lastact = heroku.getValues('activity', 'monitor_computer', sels=[('computer_name', '=', settings.computer)])
 	#check if it's 15 minutes late
+	lastact = lastact.replace(tzinfo=None)
+	lastact = lastact + timedelta(hours=10)
 	tminus15 = datetime.now() - timedelta(minutes=15)
-	if lastact.replace(tzinfo=None) < tminus15:
+	if lastact < tminus15:
 		system('supervisorctl signal HUP all')
 		with open(settings.dropboxPath + 'Data Incubator/Jefit/logs/' + settings.computer + '_log.txt', 'ab') as logFile:
 			logFile.write('Restart at \t' + ctime())
