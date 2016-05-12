@@ -176,7 +176,7 @@ while True:
 		print(ctime() + ':\t Restarted script.')
 	else:
 		print(ctime() + ':\t Script is running fine.')
-	sleep(60*15)
+	sleep(60*3)
 	
 system('sudo unlink /tmp/supervisor.sock')
 	
