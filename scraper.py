@@ -1785,7 +1785,7 @@ if settings.scrapeLogs:
 		
 		# get next user
 		s = datetime.now()
-		[logid, url, user] = Q.pop(-10)
+		[logid, url, user] = Q.pop()
 		if timeMe: s = timeIt(s, 'Popped new user')
 		
 		#scrape log
