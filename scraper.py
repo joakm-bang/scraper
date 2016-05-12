@@ -1800,7 +1800,7 @@ if settings.scrapeLogs:
 		commn += 1
 		if commn == settings.commitFreq:
 			commn = 0
-			log.writeIt(commit=True)
+			log.writeIt(commit=False)
 			if timeMe: s = timeIt(s, 'Wrote to database')
 			#update database queue
 			db.updateField(tables.logs, 'scraped', True, 'logid', logid, commit=True)
