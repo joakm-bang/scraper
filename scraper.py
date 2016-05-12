@@ -1118,7 +1118,10 @@ class ProfilePage:
 		if addFriends:
 			# get current friends and look for new ones
 			#self.oldfriends = set(db.getColVal('user2', tables.friends, 'user1', str(user)))
-			self.oldfriends = set(db.getValues('user2', tables.friends, sels=[('user1', '=', str(user))]))
+			try:
+				self.oldfriends = set(db.getValues('user2', tables.friends, sels=[('user1', '=', str(user))]))
+			except TypeError:
+				self.oldfriends = set([db.getValues('user2', tables.friends, sels=[('user1', '=', str(user))])])
 			friends = []
 			friend_divs = soup.findAll('div', {'class':'friendCell2'})
 			for friend_div in friend_divs:
