@@ -162,10 +162,10 @@ class database:
 heroku = database(settings.herokuconfig)
 
 #start supervisord
-system('supervisord -n -c /etc/supervisord.conf')
+#system('supervisord -n -c /etc/supervisord.conf')
 
 while True:
-	# get latest activity
+	#get latest activity
 	lastact = heroku.getValues('activity', 'monitor_computer', sels=[('computer_name', '=', settings.computer)])
 	#check if it's 15 minutes late
 	tminus15 = datetime.now() - timedelta(minutes=15)
