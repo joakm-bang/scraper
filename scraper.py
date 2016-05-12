@@ -79,7 +79,7 @@ class Settings:
 			self.ll = 0
 			self.ul = 200000			
 			self.delayLambda = 6
-			self.commitFreq = 5
+			#self.commitFreq = 5
 		elif self.computer == 'server':   #Server (months, any)
 			self.scrapeMonths = True
 			self.onlyEven = None
@@ -1788,7 +1788,7 @@ if settings.scrapeLogs:
 		
 		# get next user
 		s = datetime.now()
-		[logid, url, user] = Q.pop(-10)
+		[logid, url, user] = Q.pop()
 		if timeMe: s = timeIt(s, 'Popped new user')
 		
 		#scrape log
