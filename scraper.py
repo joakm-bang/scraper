@@ -506,9 +506,15 @@ class database:
 					y = []
 					for xi in x:
 						y.append(xi[0])
-					return(y)
+					if len(y) == 1:
+						return y[0]
+					else:
+						return(y)
 				else:
-					return(x)
+					if len(x) == 1:
+						return x[0]
+					else:
+						return(x)
 				
 		dummy = Dummy()
 		dummy.thisCol = thisCol
