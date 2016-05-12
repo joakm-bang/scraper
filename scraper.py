@@ -79,7 +79,7 @@ class Settings:
 			self.ll = 0
 			self.ul = 200000			
 			self.delayLambda = 6
-			self.commitFreq = 5
+			#self.commitFreq = 5
 		elif self.computer == 'server':   #Server (months, any)
 			self.scrapeMonths = True
 			self.onlyEven = None
