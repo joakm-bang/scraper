@@ -174,7 +174,7 @@ while True:
 	if lastact < tminus15:
 		system('supervisorctl signal HUP all')
 		with open(settings.dropboxPath + 'Data Incubator/Jefit/logs/' + settings.computer + '_log.txt', 'ab') as logFile:
-			logFile.write('Restart at \t' + ctime())
+			logFile.write('Restart at \t' + ctime() + '\n')
 		print(ctime() + ':\t Restarted script.')
 	else:
 		print(ctime() + ':\t Script is running fine.')
