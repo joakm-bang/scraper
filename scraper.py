@@ -78,12 +78,12 @@ class Settings:
 			self.onlyEven = False
 			self.ll = 0
 			self.ul = 200000			
-			self.delayLambda = 6
+			self.delayLambda = 7
 			#self.commitFreq = 5
 		elif self.computer == 'server':   #Server (months, any)
 			self.scrapeMonths = True
 			self.onlyEven = None
-			self.delayLambda = 6
+			self.delayLambda = 7
 		elif self.computer == 'hemma':   # Hemma  (logs, uneven, > 200000)
 			self.runlocal = True
 			self.scrapeLogs = True
