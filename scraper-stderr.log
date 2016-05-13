@@ -84,3 +84,19 @@ ImportError: No module named psycopg2
   self.br.set_handle_gzip(True)
 /home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
   self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+Traceback (most recent call last):
+  File "/home/joakim/work/scraper/scraper.py", line 1809, in <module>
+    log.writeIt(commit=False)
+  File "/home/joakim/work/scraper/scraper.py", line 1286, in writeIt
+    db.write2db(ex, tables.exercises, commit=commit)
+  File "/home/joakim/work/scraper/scraper.py", line 380, in write2db
+    return self.timeoutHandler(dummy)
+  File "/home/joakim/work/scraper/scraper.py", line 658, in timeoutHandler
+    raise DBerror('Fatal databse error.')
+__main__.DBerror
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
+/home/joakim/work/scraper/scraper.py:847: UserWarning: gzip transfer encoding is experimental!
+  self.br.set_handle_gzip(True)
