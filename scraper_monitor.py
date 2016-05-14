@@ -12,7 +12,7 @@ class Settings:
 	#----------------------------------------------------------------------
 	def __init__(self):
 		#Defaults
-		self.debug = True
+		self.debug = False
 		self.dropboxPath = environ['DROPBOX_PATH']
 		self.computer = environ['COMPUTER_NAME']		
 		
