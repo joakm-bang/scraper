@@ -89,7 +89,7 @@ class Settings:
 			self.scrapeLogs = True
 			self.onlyEven = False
 			self.ll = 0
-			self.ul = 20000000
+			self.ul = 9999999999
 		elif self.computer == 'toshiban':   # Toshiban (users, even)
 			self.scrapeUsers = True
 			self.onlyEven = True
