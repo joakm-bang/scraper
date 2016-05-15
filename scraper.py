@@ -72,12 +72,12 @@ class Settings:
 		# machine specific variables
 		self.dropboxPath = environ['DROPBOX_PATH']
 		self.computer = environ['COMPUTER_NAME']
-		if self.computer == 'kontoret':  # Kontoret (logs, uneven, < 200000)
+		if self.computer == 'kontoret':  # Kontoret (users, uneven, < 2000000)
 			#self.runlocal = True
-			self.scrapeLogs = True
+			self.scrapeUsers = True
 			self.onlyEven = False
 			self.ll = 0
-			self.ul = 200000			
+			self.ul = 2000000
 			self.delayLambda = 7
 			#self.commitFreq = 5
 		elif self.computer == 'server':   #Server (months, any)
@@ -93,10 +93,12 @@ class Settings:
 		elif self.computer == 'toshiban':   # Toshiban (users, even)
 			self.scrapeUsers = True
 			self.onlyEven = True
-		elif self.computer == 'litenvit':   # Liten vit (users, uneven)
+		elif self.computer == 'litenvit':   # Liten vit (users, uneven, > 2 000 000)
 			self.runLAN = True
 			self.scrapeUsers = True
-			self.onlyEven = False						
+			self.onlyEven = False
+			self.ll = 2000001
+			self.ul = 5000000
 			self.bannedIP = '60.241.126.187'
 		elif self.computer == 'garderoben':   # Garderoben (logs, even)
 			self.runLAN = True
@@ -694,39 +696,41 @@ class userqueue:
 		else:
 			return False
 	
-	def keepEven(self, x, reverse = None):
+	def keepEven(self, x, reverse = None, ul=None, ll=None):
 		if reverse is None:
 			return x
 		else:
 			y = []
 			for xi in x:
 				if (xi & 1) and (reverse is True):  #odd and looking for odd
-					y.append(xi)
+					if ul is not None and xi < ul and ll is not None and xi >= ll:
+						y.append(xi)
 				elif not (xi & 1) and not reverse:  #even and looking for even
-					y.append(xi)
+					if ul is not None and xi < ul and ll is not None and xi >= ll:
+						y.append(xi)
 			return y	
 
-	def addFriends(self, friends, even=None):
+	def addFriends(self, friends, even=None, ul=None, ll=None):
 		dmp = []
 		for friend in friends:
 			if friend[1] not in self.done and friend[1] not in self.queue and isinstance(friend[1], int):
 				dmp.append(friend[1])
-		self.queue = self.queue + self.keepEven(dmp,reverse=even)  # potenitally keep only even or odd user ids
+		self.queue = self.queue + self.keepEven(dmp,reverse=even, ul=ul, ll=ll)  # potenitally keep only even or odd user ids
 	
 	def addtoDone(self, didit):
 		self.done.add(didit)
 
-	def fillRandom(self,maxids=False, k=False, even=None):
+	def fillRandom(self,maxids=False, k=False, even=None, ul=None, ll=None):
 		if maxids is False:
 			maxids = self.maxids
 		if k is False:
 			k = self.k
-		dmp = self.keepEven(list(set(range(1,maxids)).difference(self.done)),reverse=even)
+		dmp = self.keepEven(list(set(range(1,maxids)).difference(self.done)),reverse=even, ul=ul, ll=ll)
 		self.queue = sample(dmp,min(k,len(dmp)))
 		
-	def fillFriends(self, even=None):
+	def fillFriends(self, even=None, ul=None, ll=None):
 		dmp = list(set(db.getValues('user2', tables.friends)).difference(self.done))
-		dmp = self.keepEven(list(set(db.getValues('user2', tables.friends)).difference(self.done)), even)
+		dmp = self.keepEven(list(set(db.getValues('user2', tables.friends)).difference(self.done)), even, ul=ul, ll=ll)
 		self.queue = self.queue + dmp
 			
 		if self.isempty():
@@ -1675,7 +1679,7 @@ if settings.scrapeUsers:
 	
 	# loop over uncollected users
 	Q = userqueue()
-	Q.fillFriends(even=settings.onlyEven)
+	Q.fillFriends(even=settings.onlyEven, ul=settings.ul, ll=settings.ll)
 	t = datetime.now()
 	while not Q.isempty():
 		
@@ -1700,11 +1704,11 @@ if settings.scrapeUsers:
 			db.insertMany(tables.logs, ('userid_id', 'url', 'date'), monthPage.dbrows)
 		
 		#add any friends to queue
-		Q.addFriends(monthPage.friends, even=settings.onlyEven)
+		Q.addFriends(monthPage.friends, even=settings.onlyEven, ul=settings.ul, ll=settings.ll)
 		
 		#refill queue if necessary
 		if Q.isempty():
-			Q.fillRandom(even=settings.onlyEven)
+			Q.fillRandom(even=settings.onlyEven, ul=settings.ul, ll=settings.ll)
 		
 		#add user to the done set
 		Q.done.add(user)
