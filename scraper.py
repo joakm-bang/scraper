@@ -72,7 +72,7 @@ class Settings:
 		# machine specific variables
 		self.dropboxPath = environ['DROPBOX_PATH']
 		self.computer = environ['COMPUTER_NAME']
-		if self.computer == 'kontoret':  # Kontoret (users, uneven, < 2000000)
+		if self.computer == 'kontoret':  # Kontoret (users, uneven, < 2 000 000)
 			#self.runlocal = True
 			self.scrapeUsers = True
 			self.onlyEven = False
