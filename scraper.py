@@ -1478,7 +1478,11 @@ class LogPage:
 		
 	def addNewFriends(self):
 		# get current friends and look for new ones
-		self.oldfriends = set(db.getValues('user2', tables.friends, sels = [('user1', '=', str(self.user))]))
+		dmp = db.getValues('user2', tables.friends, sels = [('user1', '=', str(self.user))])
+		try:
+			self.oldfriends = set(dmp)
+		except:
+			self.oldfriends = set([dmp])
 		friends = []
 		friend_divs = self.soup.findAll('div', {'class':'friendCell2'})
 		for friend_div in friend_divs:
