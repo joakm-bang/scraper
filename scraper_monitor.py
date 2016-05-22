@@ -14,7 +14,10 @@ class Settings:
 		#Defaults
 		self.debug = False
 		self.dropboxPath = environ['DROPBOX_PATH']
-		self.computer = environ['COMPUTER_NAME']		
+		self.computer = environ['COMPUTER_NAME']
+		self.errorlog = self.dropboxPath + 'Data Incubator/Project/jefit/allusers/errorlogs/' + \
+		    self.computer + datetime.ctime(datetime.now()).replace(' ', '_').replace(':','_') + '.txt'
+		
 		
 		#database connection
 		self.setDatabase()
