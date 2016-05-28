@@ -766,7 +766,15 @@ class monthQueue:
 		return len(self.queue)
 	
 	def pop(self, n=-1):
-		return self.queue.pop(n)			
+		try:
+			return self.queue.pop(n)
+		except:
+			if isinstance(self.queue, tuple) and len(self.queue) == 2:
+				x = self.queue[:]
+				self.queue = []
+				return(x)
+			raise TypeError('Cannot pop')		
+					
 	
 	def isempty(self):
 		if self.len() == 0:
