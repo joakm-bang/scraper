@@ -75,7 +75,7 @@ class Settings:
 		if self.computer == 'kontoret':  # Kontoret (months, uneven)
 			#self.runlocal = True
 			self.scrapeMonths = True
-			self.onlyEven = False
+			#self.onlyEven = False
 			self.ll = 0
 			self.ul = 99999999999
 			self.delayLambda = 7
