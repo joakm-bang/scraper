@@ -79,17 +79,17 @@ class Settings:
 			self.ll = 0
 			self.ul = 99999999999
 			self.delayLambda = 7
-		elif self.computer == 'server':   #Server (logs, uneven, < 500 000)
+		elif self.computer == 'server':   #Server (logs, uneven, < 1 000 000)
 			self.scrapeLogs = True
 			self.onlyEven = False
 			self.ll = 0
-			self.ul = 500000
+			self.ul = 1000000
 			self.delayLambda = 7
-		elif self.computer == 'hemma':   # Hemma  (logs, uneven, > 500 000)
+		elif self.computer == 'hemma':   # Hemma  (logs, uneven, > 1 000 000)
 			self.runlocal = True
 			self.scrapeLogs = True
 			self.onlyEven = False
-			self.ll = 500001
+			self.ll = 1000001
 			self.ul = 9999999999
 		elif self.computer == 'toshiban':   # Toshiban (users, even)
 			self.scrapeUsers = True
