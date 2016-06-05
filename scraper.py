@@ -96,7 +96,8 @@ class Settings:
 			self.ul = 9999999999
 			
 		elif self.computer == 'vbox3':   # Vbox3  (logs, uneven, [1 000 000, 1 100 000])
-			self.runlocal = True
+			self.runLAN = True
+			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			self.onlyEven = False
 			self.ll = 1000001
