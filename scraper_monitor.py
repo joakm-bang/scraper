@@ -165,7 +165,7 @@ class database:
 heroku = database(settings.herokuconfig)
 
 #start supervisord
-#system('supervisord -n -c /etc/supervisord.conf')
+#system('supervisord -e trace -n -c /etc/supervisord.conf')
 
 while True:
 	#get latest activity
