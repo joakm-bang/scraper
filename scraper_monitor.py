@@ -13,7 +13,10 @@ class Settings:
 	def __init__(self):
 		#Defaults
 		self.debug = False
-		self.dropboxPath = environ['DROPBOX_PATH']
+		try:
+			self.dropboxPath = environ['DROPBOX_PATH']
+		except:
+			self.dropboxPath = '/home/joakim/'
 		self.computer = environ['COMPUTER_NAME']
 		self.errorlog = self.dropboxPath + 'Data Incubator/Project/jefit/allusers/errorlogs/' + \
 		    self.computer + datetime.ctime(datetime.now()).replace(' ', '_').replace(':','_') + '.txt'
