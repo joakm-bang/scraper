@@ -70,7 +70,10 @@ class Settings:
 		self.ll = None
 		self.commitFreq = 1
 		# machine specific variables
-		self.dropboxPath = environ['DROPBOX_PATH']
+		try:
+			self.dropboxPath = environ['DROPBOX_PATH']
+		except:
+			self.dropboxPath = '/home/joakim/'
 		self.computer = environ['COMPUTER_NAME']
 		if self.computer == 'kontoret':  # Kontoret (months, uneven)
 			#self.runlocal = True
@@ -85,12 +88,20 @@ class Settings:
 			self.ll = 0
 			self.ul = 1000000
 			self.delayLambda = 7
-		elif self.computer == 'hemma':   # Hemma  (logs, uneven, > 1 000 000)
+		elif self.computer == 'hemma':   # Hemma  (logs, uneven, > 1 100 000)
+			self.runlocal = True
+			self.scrapeLogs = True
+			self.onlyEven = False
+			self.ll = 1100001
+			self.ul = 9999999999
+			
+		elif self.computer == 'vbox3':   # Vbox3  (logs, uneven, [1 000 000, 1 100 000])
 			self.runlocal = True
 			self.scrapeLogs = True
 			self.onlyEven = False
 			self.ll = 1000001
-			self.ul = 9999999999
+			self.ul = 1100000
+		
 		elif self.computer == 'toshiban':   # Toshiban (users, even)
 			self.scrapeUsers = True
 			self.onlyEven = True
