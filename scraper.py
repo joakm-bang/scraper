@@ -1311,6 +1311,9 @@ class LogPage:
 						Set['setnumber'] = l + 1
 						for m in self.workouts[k]['sets'][l].keys():
 							Set[m] = self.workouts[k]['sets'][l][m]
+						if 'rep' in Set:
+							if Set['rep'] > 10000:
+								Set['rep'] = None
 						db.write2db(Set, tables.sets, commit=commit)						
 
 		if friends and len(self.newfriends) > 0:
