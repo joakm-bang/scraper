@@ -178,7 +178,8 @@ while True:
 	lastact = lastact + timedelta(hours=10)
 	tminus15 = datetime.now() - timedelta(minutes=15)
 	if lastact < tminus15:
-		system('supervisorctl signal HUP all')
+		#system('supervisorctl signal HUP all')
+		system('supervisorctl -c /home/joakim/work/scraper/supervisord.conf restart all')
 		with open(settings.dropboxPath + 'Data Incubator/Jefit/logs/' + settings.computer + '_log.txt', 'ab') as logFile:
 			logFile.write('Restart at \t' + ctime() + '\n')
 		print(ctime() + ':\t Restarted script.')
