@@ -1885,7 +1885,7 @@ if settings.scrapeMonths:
 		profile.writeNewFriends()
 		
 		#start scraping monthly overviews
-		(friends, links, scraped) = profile.getLogs(scrapeddate, maxMiss=6)
+		(friends, links, scraped) = profile.getLogs(scrapeddate, maxMiss=12)
 		
 		#write new friends
 		fs = []
