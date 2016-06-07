@@ -63,6 +63,7 @@ class Settings:
 		self.scrapeUsers = False
 		self.scrapeMonths = False
 		self.scrapeLogs = False
+		self.fillMonths = False
 		self.onlyEven = None
 		self.chkFreq = 60*5
 		self.iterations = 0
@@ -787,9 +788,19 @@ class userqueue:
 	""""""
 
 	#----------------------------------------------------------------------
-	def __init__(self, k=1000, maxids=3946679):
+	def __init__(self, k=20000, maxids=3946679, ll=None, ul=None, onlyEven=None):
 		# get users already in list
-		self.done = set(db.getValues('userid', tables.users))
+		self.ll = ll
+		self.ul = ul
+		self.onlyEven = onlyEven
+		sels = [('userid', '>', -1)]
+		if ll is not None:
+			sels.append(('userid', '>', ll-1))
+		if ul is not None:
+			sels.append(('userid', '<', ul+1))
+		if onlyEven is not None:
+			sels.append(('mod(userid,2)', '=', 1-int(onlyEven)))
+		self.done = set(db.getValues('userid', tables.users, sel=sels))
 		self.queue = []
 		self.k = k
 		self.maxids = maxids
@@ -845,15 +856,25 @@ class userqueue:
 			maxids = self.maxids
 		if k is False:
 			k = self.k
-		dmp = self.keepEven(list(set(range(1,maxids)).difference(self.done)),reverse=even, ul=ul, ll=ll)
-		self.queue = sample(dmp,min(k,len(dmp)))
+		if self.onlyEven is None:
+			dmp = list(set(range(ll,ul)).difference(self.done))
+		else:
+			if self.onlyEven:
+				if (ll & 1):
+					ll = ll + 1
+				dmp = list(set(range(ll,ul,2)).difference(self.done))
+			else:
+				if not (ll & 1):
+					ll = ll + 1
+				dmp = list(set(range(ll,ul,2)).difference(self.done))
+		self.queue = dmp[:self.k]
 		
 	def fillFriends(self, even=None, ul=None, ll=None):
 		dmp = list(set(db.getValues('user2', tables.friends)).difference(self.done))
 		dmp = self.keepEven(list(set(db.getValues('user2', tables.friends)).difference(self.done)), even, ul=ul, ll=ll)
 		self.queue = self.queue + dmp
 			
-		if self.isempty():
+		if self.len() < 5:
 			self.fillRandom(self.maxids, self.k, even=even)
 			
 class monthQueue:
@@ -868,7 +889,8 @@ class monthQueue:
 	def refill(self):
 		self.queue = db.getSubset(('userid', 'firstdate'), 
 		                          tables.users, 
-		                          sels=[('scraped', '=', False), ('public', '=', True)], 
+		                          sels=[('scraped', '=', False), ('public', '=', True),
+		                                ('userid', '<', self.ul), ('userid', '>', self.ll)], 
 		                          onlyEven=self.onlyEven, 
 		                          limit=self.limit)
 	
@@ -894,6 +916,49 @@ class monthQueue:
 			return True
 		else:
 			return False	
+
+
+class fillQueue:
+	#----------------------------------------------------------------------
+	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=50000):
+		self.onlyEven = onlyEven
+		self.limit = limit
+		self.ul = ul
+		self.ll = ll
+		self.refill()
+		
+	def refill(self):
+		self.queue = db.getSubset('userid', 
+		                          tables.users, 
+		                          sels=[('filled', '=', False), ('public', '=', True), ('scraped', '=', True),
+		                              ('userid', '<', self.ul), ('userid', '>', self.ll)], 
+		                          onlyEven=self.onlyEven, 
+		                          limit=self.limit)
+	
+	def __call__(self):
+		return self.queue
+
+	def len(self):
+		return len(self.queue)
+	
+	def pop(self, n=-1):
+		try:
+			return self.queue.pop(n)
+		except:
+			if isinstance(self.queue, tuple) and len(self.queue) == 2:
+				x = self.queue[:]
+				self.queue = []
+				return(x)
+			raise TypeError('Cannot pop')		
+					
+	
+	def isempty(self):
+		if self.len() == 0:
+			return True
+		else:
+			return False	
+
+
 
 class logQueue:
 	#----------------------------------------------------------------------
@@ -1374,6 +1439,60 @@ class ProfilePage:
 		return(friends, links, uscraped)
 
 
+
+
+class ProfileFiller:
+
+	#----------------------------------------------------------------------
+	def __init__(self, user, startdate=datetime.fromordinal(734138)):
+		self.user = user
+		self.startdate = startdate
+		self.enddate = datetime.now()
+
+	def fillLogs(self):
+		
+		
+		def procMonth(t):
+			yy = t.year
+			mm = t.month
+			murl = 'https://www.jefit.com/members/user-logs/?yy=' + str(yy) + '&mm=' + str(mm) + \
+			    '&xid=' + str(self.user)
+			msoup = br.tryPage(murl, soup=True)
+			mpage = MonthPage(msoup, getusername=False, getfriends=True, getlogs=True, user=self.user, 
+			                  singleFriend=True)
+			return(mpage.dbrows, set(mpage.friends))
+		
+		#previously scraped months
+		scraped = []
+		oldscrapes = db.getValues('scrapeddate', tables.months, sels=[('userid_id', '=', self.user)])
+		friends = set([])
+		links = []
+		
+		#loop over all months
+		t = self.startdate
+		while (t < self.enddate):
+			
+			nt = datetime.toordinal(t)
+			if (t not in scraped) and (nt not in oldscrapes):
+				(dmpRows, dmpFriends) = procMonth(t)
+				links = links + dmpRows
+				friends = friends.union(dmpFriends)
+				scraped.append(t)
+				if (len(dmpRows) == 0):
+					print('(' + str(user) + ') - Empty month: ' + str(t.year) + '-' + \
+					      str(t.month))
+				else:
+					print('(' + str(user) + ') - Full month: ' + str(t.year) + '-' + \
+					      str(t.month))
+			t = t + relativedelta(t, months=1)
+				
+		uscraped = []
+		for t in scraped:
+			uscraped.append((self.user, datetime.toordinal(t)))
+		
+		return(friends, links, uscraped)
+
+
 class LogPage:
 	""""""
 	
@@ -1764,23 +1883,7 @@ class Tables:
 		if settings.computer not in computers:
 			heroku.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 
 			                 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
-	
 
-#class Backupsleeper:
-	#def __init__(self, doit = True):		
-		#self.doit = doit
-	
-	#def bunap(self):
-		#t = datetime.now()
-		#if t.hour == 3 and t. minute > 45:
-			#if self.doit:
-				#td = relativedelta(
-					#datetime.fromordinal(datetime.toordinal(datetime.now())) + relativedelta(hours=4), 
-					#datetime.now())
-				#print('Backup time. Sleeping until 4 a.m.')
-				#sleep(td.minutes*60 + td.seconds)
-		
-		
 	
 #
 # **********************************************************************************************************
@@ -1801,8 +1904,7 @@ br.login()
 tables = Tables()
 db.setNoteCounter()
 
-#nap during backups
-#busleeper = Backupsleeper()
+
 
 # ** Get list of members ** 
 if settings.scrapeUsers:
@@ -1849,7 +1951,6 @@ if settings.scrapeUsers:
 		Q.done.add(user)
 		
 		#print progress
-		#busleeper.bunap()
 		try:
 			print(u'Queued up ' + u'non-'*(1-monthPage.public) + u'public user ' + \
 			      monthPage.username + u' (' + unicode(user) + u').')
@@ -1864,7 +1965,7 @@ def firstOfMonth(x):
 # ** Go through monthly overviews and get links to individual workout logs ** 
 if settings.scrapeMonths:
 	
-	Q = monthQueue(only_new_users=True, onlyEven=settings.onlyEven)
+	Q = monthQueue(only_new_users=True, onlyEven=settings.onlyEven, ul=settings.ul, ll=settings.ll)
 
 	t = datetime.now()
 	while not Q.isempty():
@@ -1905,9 +2006,48 @@ if settings.scrapeMonths:
 		#don't scrape again for now
 		db.updateField(tables.users, 'scraped', True, 'userid', user)
 		
-		#busleeper.bunap()
 		if Q.isempty():
 			Q.refill()
+
+
+
+
+# ** Fill up months ** 
+if settings.fillMonths:
+	
+	Q = fillQueue(onlyEven=settings.onlyEven, ul=settings.ul, ll=settings.ll)
+
+	t = datetime.now()
+	while not Q.isempty():
+		
+		# get next user
+		user = Q.pop()
+		
+		#fill months
+		profile = ProfileFiller(user=user)
+		(friends, links, scraped) = profile.fillLogs()
+		
+		#write new friends
+		fs = []
+		for f in friends:
+			fs.append((user, f))
+		db.insertMany(tables.friends, ('user1', 'user2'), fs)
+		
+		#write logs (delay commit to avoid nasty things if something happens in the next few lines)
+		db.insertMany(tables.logs, ('userid_id', 'url', 'date'), links, commit=False)	
+		
+		#write scraped months
+		db.insertMany(tables.months, ('userid_id', 'scrapeddate'), scraped, commit=False)
+		
+		#don't fill again (and commit)
+		if len(scraped) > 0:
+			db.updateField(tables.users, 'firstdate', min(scraped), 'userid', user, commit=False)
+		db.updateField(tables.users, 'filled', True, 'userid', user)
+		
+		#refill queue if necessary
+		if Q.isempty():
+			Q.refill()
+
 
 
 #Scrape actual workout sessions
@@ -1959,7 +2099,6 @@ if settings.scrapeLogs:
 
 		
 		#print progress
-		#busleeper.bunap()
 		print(' Scraped log ' + str(logid) + ' at ' + datetime.ctime(datetime.now()))
 		print('Iteration took ' + str(datetime.now()-t) + '\n'*timeMe)
 		t = datetime.now()
