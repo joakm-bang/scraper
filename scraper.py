@@ -788,7 +788,7 @@ class userqueue:
 	""""""
 
 	#----------------------------------------------------------------------
-	def __init__(self, k=20000, maxids=3946679, ll=None, ul=None, onlyEven=None):
+	def __init__(self, k=20000, maxids=3946679, ll=settings.ll, ul=settings.ul, onlyEven=settings.onlyEven):
 		# get users already in list
 		self.ll = ll
 		self.ul = ul
@@ -800,7 +800,7 @@ class userqueue:
 			sels.append(('userid', '<', ul+1))
 		if onlyEven is not None:
 			sels.append(('mod(userid,2)', '=', 1-int(onlyEven)))
-		self.done = set(db.getValues('userid', tables.users, sel=sels))
+		self.done = set(db.getValues('userid', tables.users, sels=sels))
 		self.queue = []
 		self.k = k
 		self.maxids = maxids
@@ -827,31 +827,43 @@ class userqueue:
 		else:
 			return False
 	
-	def keepEven(self, x, reverse = None, ul=None, ll=None):
-		if reverse is None:
+	#def keepEven(self, x, reverse = None, ul=None, ll=None):
+		#if reverse is None:
+			#return x
+		#else:
+			#y = []
+			#for xi in x:
+				#if (xi & 1) and (reverse is True):  #odd and looking for odd
+					#if ul is not None and xi < ul and ll is not None and xi >= ll:
+						#y.append(xi)
+				#elif not (xi & 1) and not reverse:  #even and looking for even
+					#if ul is not None and xi < ul and ll is not None and xi >= ll:
+						#y.append(xi)
+			#return y	
+	def keepEven(self, x, even = None, ul=None, ll=None):
+		if even is None:
 			return x
-		else:
-			y = []
-			for xi in x:
-				if (xi & 1) and (reverse is True):  #odd and looking for odd
-					if ul is not None and xi < ul and ll is not None and xi >= ll:
-						y.append(xi)
-				elif not (xi & 1) and not reverse:  #even and looking for even
-					if ul is not None and xi < ul and ll is not None and xi >= ll:
-						y.append(xi)
-			return y	
+		y = []
+		for n in x:
+			if ((n&1)-even) != 0 and n > ll and n < ul:
+				y.append(n)
+		return(y)
 
 	def addFriends(self, friends, even=None, ul=None, ll=None):
 		dmp = []
 		for friend in friends:
 			if friend[1] not in self.done and friend[1] not in self.queue and isinstance(friend[1], int):
 				dmp.append(friend[1])
-		self.queue = self.queue + self.keepEven(dmp,reverse=even, ul=ul, ll=ll)  # potenitally keep only even or odd user ids
+		self.queue = self.queue + self.keepEven(dmp,even=even, ul=ul, ll=ll)  # potenitally keep only even or odd user ids
 	
 	def addtoDone(self, didit):
 		self.done.add(didit)
 
 	def fillRandom(self,maxids=False, k=False, even=None, ul=None, ll=None):
+		if ll is None:
+			ll = self.ll
+		if ul is None:
+			ul = self.ul			
 		if maxids is False:
 			maxids = self.maxids
 		if k is False:
@@ -870,12 +882,14 @@ class userqueue:
 		self.queue = dmp[:self.k]
 		
 	def fillFriends(self, even=None, ul=None, ll=None):
-		dmp = list(set(db.getValues('user2', tables.friends)).difference(self.done))
-		dmp = self.keepEven(list(set(db.getValues('user2', tables.friends)).difference(self.done)), even, ul=ul, ll=ll)
+		#dmp = list(set(db.getValues('user2', tables.friends)).difference(self.done))
+		dmp = self.keepEven(list(set(db.getValues('user2', tables.friends)).difference(self.done)), settings.onlyEven, ul=settings.ul, ll=settings.ll)
 		self.queue = self.queue + dmp
 			
 		if self.len() < 5:
 			self.fillRandom(self.maxids, self.k, even=even)
+
+
 			
 class monthQueue:
 	#----------------------------------------------------------------------
