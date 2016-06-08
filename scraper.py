@@ -1153,11 +1153,15 @@ class browser:
 		while n < maxN and goon:
 			try:
 				n = n + 1
-				self.ip = load(urlopen('http://jsonip.com'))['ip']
+				self.ip = load(urlopen('https://api.ipify.org?format=json'))['ip']
 				goon = False
 			except:
-				print('Error getting IP on attempt ' + str(n) + '. Sleeping for ' + str(S) + ' seconds.')
-				sleep(S)
+				try:
+					self.ip = load(urlopen('http://jsonip.com'))['ip']
+					goon = False
+				except:
+					print('Error getting IP on attempt ' + str(n) + '. Sleeping for ' + str(S) + ' seconds.')
+					sleep(S)
 
 		
 	#----------------------------------------------------------------------
