@@ -788,7 +788,7 @@ class userqueue:
 	""""""
 
 	#----------------------------------------------------------------------
-	def __init__(self, k=20000, maxids=3946679, ll=settings.ll, ul=settings.ul, onlyEven=settings.onlyEven):
+	def __init__(self, k=20000, maxids=4000000, ll=settings.ll, ul=settings.ul, onlyEven=settings.onlyEven):
 		# get users already in list
 		self.ll = ll
 		self.ul = ul
@@ -868,6 +868,7 @@ class userqueue:
 			maxids = self.maxids
 		if k is False:
 			k = self.k
+		ul = min(maxids, ul)
 		if self.onlyEven is None:
 			dmp = list(set(range(ll,ul)).difference(self.done))
 		else:
