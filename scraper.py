@@ -90,17 +90,10 @@ class Settings:
 			self.delayLambda = 7
 		elif self.computer == 'hemma':   # Hemma  (logs, , [1 500 001, 1 800 000])
 			self.runlocal = True
-
-			self.scrapeUsers = True
+			self.scrapeLogs = True
 			#self.onlyEven = True
-			self.ll = 800001
-			self.ul = 1200000
-
-
-			#self.scrapeLogs = True
-			##self.onlyEven = True
-			#self.ll = 1500001
-			#self.ul = 1800000
+			self.ll = 1500001
+			self.ul = 1800000
 		elif self.computer == 'toshiban':   # Toshiban (users, , [800 001, 1 200 000])
 			self.scrapeUsers = True
 			#self.onlyEven = True
