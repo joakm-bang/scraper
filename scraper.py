@@ -90,10 +90,17 @@ class Settings:
 			self.delayLambda = 7
 		elif self.computer == 'hemma':   # Hemma  (logs, , [1 500 001, 1 800 000])
 			self.runlocal = True
-			self.scrapeLogs = True
+
+			self.scrapeUsers = True
 			#self.onlyEven = True
-			self.ll = 1500001
-			self.ul = 1800000
+			self.ll = 800001
+			self.ul = 1200000
+
+
+			#self.scrapeLogs = True
+			##self.onlyEven = True
+			#self.ll = 1500001
+			#self.ul = 1800000
 		elif self.computer == 'toshiban':   # Toshiban (users, , [800 001, 1 200 000])
 			self.scrapeUsers = True
 			#self.onlyEven = True
@@ -849,10 +856,10 @@ class userqueue:
 				y.append(n)
 		return(y)
 
-	def addFriends(self, friends, even=None, ul=None, ll=None):
+	def addFriends(self, friends, even=None, ul=settings.ul, ll=settings.ll):
 		dmp = []
 		for friend in friends:
-			if friend[1] not in self.done and friend[1] not in self.queue and isinstance(friend[1], int):
+			if friend[1] not in self.done and friend[1] not in self.queue and isinstance(friend[1], int) and friend[1] > ll and friend[1] < ul:
 				dmp.append(friend[1])
 		self.queue = self.queue + self.keepEven(dmp,even=even, ul=ul, ll=ll)  # potenitally keep only even or odd user ids
 	
@@ -884,7 +891,7 @@ class userqueue:
 		
 	def fillFriends(self, even=None, ul=None, ll=None):
 		#dmp = list(set(db.getValues('user2', tables.friends)).difference(self.done))
-		dmp = self.keepEven(list(set(db.getValues('user2', tables.friends)).difference(self.done)), settings.onlyEven, ul=settings.ul, ll=settings.ll)
+		dmp = self.keepEven(list(set(db.getValues('user2', tables.friends, sels=[('user2', '>', settings.ll), ('user2', '<', settings.ul)], unique=True)).difference(self.done)), settings.onlyEven, ul=settings.ul, ll=settings.ll)
 		self.queue = self.queue + dmp
 			
 		if self.len() < 5:
