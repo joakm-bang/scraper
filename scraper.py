@@ -90,6 +90,7 @@ class Settings:
 			self.delayLambda = 7
 		elif self.computer == 'hemma':   # Hemma  (logs, , [1 500 001, 1 800 000])
 			self.runlocal = True
+			
 			self.scrapeLogs = True
 			#self.onlyEven = True
 			self.ll = 1500001
@@ -169,7 +170,8 @@ class Settings:
 			self.scrapeMonths = True
 			#self.onlyEven = False
 			self.ll = 1600001
-			self.ul = 2400000			
+			self.ul = 2400000	
+			
 		elif self.computer == 'vbox9':   # Vbox9  (months, , [2 400 000, 3 200 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
