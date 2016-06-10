@@ -244,8 +244,8 @@ class Settings:
 			self.dbconfig[u'host'] = u'60.241.126.187'
 		
 		self.herokuconfig = dict()
-		self.herokuconfig[u'host'] = 'ec2-54-243-196-76.compute-1.amazonaws.com'
-		self.herokuconfig[u'database'] = u'd6rjh7cctk2006'
+		self.herokuconfig[u'host'] = 'ec2-52-71-87-235.compute-1.amazonaws.com'
+		self.herokuconfig[u'database'] = u'd9dhhg5l7t9cd1'
 		self.herokuconfig[u'user'] = environ['HEROKU_USER']
 		self.herokuconfig[u'password'] = environ['HEROKU_PASS']
 		self.herokuconfig[u'port'] = 5432
