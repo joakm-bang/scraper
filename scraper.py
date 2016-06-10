@@ -65,7 +65,7 @@ class Settings:
 		self.scrapeLogs = False
 		self.fillMonths = False
 		self.onlyEven = None
-		self.chkFreq = 60*5
+		self.chkFreq = 60*10
 		self.iterations = 0
 		self.ul = None
 		self.ll = None
@@ -726,6 +726,7 @@ class database:
 				return True
 		settings.iterations = settings.iterations + 1
 		if (datetime.now() - self.alivechk).total_seconds() > settings.chkFreq:
+			heroku.connect()
 			dummy = Dummy()
 			dummy.speed = round(60*settings.iterations/(datetime.now() - self.alivechk).total_seconds(),2)
 			settings.iterations = 0
@@ -737,6 +738,7 @@ class database:
 				return self.timeoutHandler(dummy)
 			else:
 				return dummy.execute()
+			heroku.close()
 
 
 	def timeoutHandler(self, obj):
@@ -1897,11 +1899,13 @@ class Tables:
 			                            ('note', 'TEXT'), 
 			                            ('db_timestamp', 'TIMESTAMP')], 
 			               pkey=0, showError=True)
-	
+			
+		heroku.connect()
 		computers = heroku.getValues('computer_name', 'monitor_computer')
 		if settings.computer not in computers:
 			heroku.write2db({'computer_name':settings.computer, 'ip':br.ip, 'activity':'now', 
 			                 'email_sent':True}, 'monitor_computer', useTimeStamp=False)
+		heroku.close()
 
 	
 #
@@ -1912,7 +1916,7 @@ class Tables:
 
 #connect to databases
 db = database(settings.dbconfig)
-heroku = database(settings.herokuconfig)
+heroku = database(settings.herokuconfig, connect=False)
 
 # open browser and login to Jefit
 br = browser(path=settings.dropboxPath + 'Data Incubator/Project/Jefit/allusers/', 
