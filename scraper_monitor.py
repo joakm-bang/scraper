@@ -3,7 +3,7 @@ import psycopg2
 from datetime import datetime, timedelta
 from time import sleep, time, ctime
 
-from os import path, environ, system
+from os import path, environ, system, mkdir
 
 
 class Settings:
@@ -180,7 +180,9 @@ while True:
 	if lastact < tminus15:
 		#system('supervisorctl signal HUP all')
 		system('supervisorctl -c /home/joakim/work/scraper/supervisord.conf restart all')
-		with open(settings.dropboxPath + 'Data Incubator/Jefit/logs/' + settings.computer + '_log.txt', 'ab') as logFile:
+		if not path.exists(settings.dropboxPath + 'Data Incubator/logs/'):
+			mkdir(settings.dropboxPath + 'Data Incubator/logs/')
+		with open(settings.dropboxPath + 'Data Incubator//logs/' + settings.computer + '_log.txt', 'ab') as logFile:
 			logFile.write('Restart at \t' + ctime() + '\n')
 		print(ctime() + ':\t Restarted script.')
 	else:
