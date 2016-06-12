@@ -90,11 +90,11 @@ class Settings:
 			self.delayLambda = 7
 		elif self.computer == 'hemma':   # Hemma  (logs, , [1 500 001, 1 800 000])
 			self.runlocal = True
-			
 			self.scrapeLogs = True
 			#self.onlyEven = True
 			self.ll = 1500001
-			self.ul = 1800000
+			self.ul = 1800000		
+			
 		elif self.computer == 'toshiban':   # Toshiban (users, , [800 001, 1 200 000])
 			self.scrapeUsers = True
 			#self.onlyEven = True
@@ -700,8 +700,63 @@ class database:
 			return self.timeoutHandler(dummy)
 		else:
 			return dummy.execute()
-		
-		
+	
+	#kill user when weird jefit movement happens
+	def killUser(self, user, debug=settings.debug):
+		class Dummy:
+			def execute(self):
+				
+				# --DELETE SETS
+				sql = '''DELETE FROM scrape_sets WHERE exid_id IN 
+				(SELECT exid FROM scrape_exercises WHERE logid_id in 
+				(SELECT logid FROM scrape_logs WHERE userid_id={0}))'''.format(str(self.user))
+				self.cur.execute(sql)
+				
+				#--DELETE LOGS
+				sql = '''DELETE FROM scrape_bodystats WHERE logid_id in 
+				(SELECT logid FROM scrape_logs WHERE userid_id={0})'''.format(str(self.user))
+				self.cur.execute(sql)
+				
+				sql = '''DELETE FROM scrape_exercises WHERE logid_id in 
+				(SELECT logid FROM scrape_logs WHERE userid_id={0})'''.format(str(self.user))
+				self.cur.execute(sql)
+				
+				sql = '''DELETE FROM scrape_logsummary WHERE logid_id in 
+				(SELECT logid FROM scrape_logs WHERE userid_id={0})'''.format(str(self.user))
+				self.cur.execute(sql)
+				
+				sql = '''DELETE FROM scrape_notes WHERE logid_id in 
+				(SELECT logid FROM scrape_logs WHERE userid_id={0})'''.format(str(self.user))
+				self.cur.execute(sql)
+				
+				sql = 'DELETE FROM scrape_logs WHERE userid_id={0}'.format(str(self.user))
+				self.cur.execute(sql)
+				
+				#--DELETE USER
+				sql = 'DELETE FROM scrape_months WHERE userid_id={0}'.format(str(self.user))
+				self.cur.execute(sql)
+				
+				sql = 'DELETE FROM scrape_userinfo WHERE userid_id={0}'.format(str(self.user))
+				self.cur.execute(sql)
+				
+				sql = 'DELETE FROM scrape_months WHERE userid_id={0}'.format(str(self.user))
+				self.cur.execute(sql)
+				
+				sql = 'UPDATE scrape_users SET scraped = FALSE WHERE userid={0}'.format(str(self.user))
+				self.cur.execute(sql)
+				
+				self.con.commit()
+				return True
+			
+		dummy = Dummy()
+		dummy.user = user
+		dummy.con = self.con
+		dummy.cur = self.cur		
+		if not debug:
+			return self.timeoutHandler(dummy)
+		else:
+			return dummy.execute()				
+				
 	#tell the database that you're alive
 	def imStillAlive(self, debug=settings.debug):
 		class Dummy:
@@ -767,6 +822,7 @@ class database:
 					pass
 				print('Iteration {0}. Sleeping for 1 minute.'.format(str(n)))
 				sleep(60)
+				
 				try:
 					try:
 						self.close()
@@ -775,6 +831,25 @@ class database:
 					self.connect()
 				except:
 					pass
+				
+				##custom exception for moved logs
+				#try:
+					#e1 = str(e).split('\n')[0]
+					#if e1 == 'duplicate key value violates unique constraint "scraper_exercises_pkey"' or e1 == 'insert or update on table "scrape_exercises" violates foreign key constraint "logid_id_fkey"':
+						#n = 12
+				#except:
+					#pass
+				
+		##custom exception for moved logs
+		#try:
+			#e1 = str(e).split('\n')[0]
+			#if e1 == 'duplicate key value violates unique constraint "scraper_exercises_pkey"':
+				#db.killUser(user=user)
+				#return False
+			#if e1 == 'insert or update on table "scrape_exercises" violates foreign key constraint "logid_id_fkey"':
+				#return False
+		#except:
+			#pass		
 		raise DBerror('Fatal databse error.')
 
 	def setNoteCounter(self):
@@ -1556,8 +1631,21 @@ class LogPage:
 				ex['logid_id'] = logid
 				exid = ex['logrowid']
 				ex['exid'] = exid
-				ex['pdate'] = datetime.strptime(ex['date'], "%Y-%m-%d").toordinal()	
-				db.write2db(ex, tables.exercises, commit=commit)
+				ex['pdate'] = datetime.strptime(ex['date'], "%Y-%m-%d").toordinal()
+				
+				#Deal with moving logs
+				try:
+					db.write2db(ex, tables.exercises, commit=commit, debug=True)
+				except Exception as e:
+					e1 = str(e).split('\n')[0]
+					if e1 == 'duplicate key value violates unique constraint "scraper_exercises_pkey"':
+						db.con.rollback()
+						db.killUser(user=self.user)
+						print('Duplicate exercise key. Fixed it.')
+						return False
+					else:
+						db.write2db(ex, tables.exercises, commit=commit, debug=settings.debug)
+						
 				if sets and self.workouts[k]['sets'] != {}:
 					for l in self.workouts[k]['sets']:
 						Set = dict()
@@ -1568,10 +1656,12 @@ class LogPage:
 						if 'rep' in Set:
 							if Set['rep'] > 10000:
 								Set['rep'] = None
-						db.write2db(Set, tables.sets, commit=commit)						
+						db.write2db(Set, tables.sets, commit=commit, debug=True)
 
 		if friends and len(self.newfriends) > 0:
 			db.insertMany(tables.friends, ('user1', 'user2'), self.newfriends)
+		
+		return True
 
 	def floatMe(self,x):
 		try:
@@ -2110,18 +2200,24 @@ if settings.scrapeLogs:
 		commn += 1
 		if commn == settings.commitFreq:
 			commn = 0
-			log.writeIt(commit=False)
+			doUpdate = log.writeIt(commit=False)
 			if timeMe: s = timeIt(s, 'Wrote to database')
 			#update database queue
-			db.updateField(tables.logs, 'scraped', True, 'logid', logid, commit=True)
+			if doUpdate:
+				db.updateField(tables.logs, 'scraped', True, 'logid', logid, commit=True)
 			if timeMe: s = timeIt(s, 'Set scraped = True')			
 		else:
-			log.writeIt(commit=False)
+			doUpdate = log.writeIt(commit=False)
 			if timeMe: s = timeIt(s, 'Wrote to database without commit (' + str(commn) + ')')
-			db.updateField(tables.logs, 'scraped', True, 'logid', logid, commit=False)
+			if doUpdate:
+				db.updateField(tables.logs, 'scraped', True, 'logid', logid, commit=False)
 			if timeMe: s = timeIt(s, 'Set scraped = True without commit (' + str(commn) + ')')				
 		
-
+		#Reinitiate queue to deal with moved log
+		if not doUpdate:
+			print('Reinitiating queue...')
+			Q = logQueue(settings.onlyEven, ul=settings.ul, ll=settings.ll)
+			doUpdate = True
 		
 		#print progress
 		print(' Scraped log ' + str(logid) + ' at ' + datetime.ctime(datetime.now()))
