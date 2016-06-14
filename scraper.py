@@ -1542,12 +1542,18 @@ class ProfilePage:
 
 
 
+
+
 class ProfileFiller:
 
+	def fillerStart(self):
+		return datetime.fromordinal(733773)
+
 	#----------------------------------------------------------------------
-	def __init__(self, user, startdate=datetime.fromordinal(734138)):
+	def __init__(self, user, startdate=None):
 		self.user = user
-		self.startdate = startdate
+		if startdate is None:
+			self.startdate = self.fillerStart()
 		self.enddate = datetime.now()
 
 	def fillLogs(self):
