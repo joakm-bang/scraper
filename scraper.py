@@ -8,7 +8,7 @@ from BeautifulSoup import BeautifulSoup, SoupStrainer
 import mechanize
 import cookielib
 from numpy.random import poisson
-from random import sample
+from random import sample, shuffle
 
 from os import path, environ
 from dateutil.relativedelta import relativedelta
@@ -191,7 +191,7 @@ class Settings:
 			self.bannedIP = '60.241.126.187'
 			self.fillMonths = True
 			self.ll = 0
-			self.ul = 100000
+			self.ul = 4000000
 		elif self.computer == 'vbox12':   # Vbox12  (logs, , [300 001, 600 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
@@ -1013,11 +1013,12 @@ class monthQueue:
 
 class fillQueue:
 	#----------------------------------------------------------------------
-	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=50000):
+	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=50000, scramble=True):
 		self.onlyEven = onlyEven
 		self.limit = limit
 		self.ul = ul
 		self.ll = ll
+		self.scramble = scramble
 		self.refill()
 		
 	def refill(self):
@@ -1027,6 +1028,10 @@ class fillQueue:
 		                              ('userid', '<', self.ul), ('userid', '>', self.ll)], 
 		                          onlyEven=self.onlyEven, 
 		                          limit=self.limit)
+		if self.scramble:
+			shuffle(self.queue)
+		
+		
 	
 	def __call__(self):
 		return self.queue
