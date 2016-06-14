@@ -90,10 +90,10 @@ class Settings:
 			self.delayLambda = 7
 		elif self.computer == 'hemma':   # Hemma  (logs, , [1 500 001, 1 800 000])
 			self.runlocal = True
-			self.scrapeLogs = True
-			#self.onlyEven = True
+			self.scrapeLogs = True			
 			self.ll = 1500001
-			self.ul = 1800000		
+			self.ul = 1800000
+
 			
 		elif self.computer == 'toshiban':   # Toshiban (users, , [800 001, 1 200 000])
 			self.scrapeUsers = True
@@ -189,10 +189,9 @@ class Settings:
 		elif self.computer == 'vbox11':   # Vbox11  (logs, , [1, 300 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
-			self.scrapeLogs = True
-			#self.onlyEven = True
+			self.fillMonths = True
 			self.ll = 0
-			self.ul = 300000
+			self.ul = 100000
 		elif self.computer == 'vbox12':   # Vbox12  (logs, , [300 001, 600 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
@@ -2156,7 +2155,7 @@ if settings.fillMonths:
 		
 		#don't fill again (and commit)
 		if len(scraped) > 0:
-			db.updateField(tables.users, 'firstdate', min(scraped), 'userid', user, commit=False)
+			db.updateField(tables.users, 'firstdate', min(scraped, key = lambda x: x[1])[1], 'userid', user, commit=False)
 		db.updateField(tables.users, 'filled', True, 'userid', user)
 		
 		#refill queue if necessary
