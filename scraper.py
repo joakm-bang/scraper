@@ -860,7 +860,7 @@ class database:
 			n = n + 1
 		settings.note_inc = n
 		
-#This huy queues up users
+#This guy queues up users
 class userqueue:
 	""""""
 
@@ -1547,8 +1547,10 @@ class ProfilePage:
 class ProfileFiller:
 
 	def fillerStart(self):
-		return datetime.fromordinal(733773)
-
+		if self.user < 2000000:
+			return datetime.fromordinal(733773)  #January 2010
+		else:
+			return datetime.fromordinal(735234)  #January 2014
 	#----------------------------------------------------------------------
 	def __init__(self, user, startdate=None):
 		self.user = user
