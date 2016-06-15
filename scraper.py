@@ -210,12 +210,12 @@ class Settings:
 			#self.onlyEven = False
 			self.ll = 300001
 			self.ul = 900000
-		elif self.computer == 'vbox13':   # Vbox13  (fill, , [2 000 001, 4 000 000])
+		elif self.computer == 'vbox13':   # Vbox13  (logs, , [1 800 001, 2 100 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
-			self.fillMonths = True
-			self.ll = 3600001
-			self.ul = 4200000
+			self.scrapeLogs = True
+			self.ll = 1800001
+			self.ul = 2100000
 		elif self.computer == 'vbox14':   # Vbox14  (logs, , [900 001, 1 200 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
