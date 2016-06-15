@@ -89,8 +89,7 @@ class Settings:
 			self.ul = 800000
 			self.delayLambda = 7
 		elif self.computer == 'hemma':   # Hemma  (logs, , [1 500 001, 1 800 000])
-			#self.runlocal = True
-			self.runLAN = True
+			self.runlocal = True
 			self.scrapeLogs = True			
 			self.ll = 1500001
 			self.ul = 1800000
@@ -249,7 +248,7 @@ class Settings:
 		if self.runlocal:
 			self.dbconfig[u'host'] = 'localhost'
 		elif self.runLAN:
-			self.dbconfig[u'host'] = u'192.168.0.12'
+			self.dbconfig[u'host'] = u'192.168.0.2'
 		else:
 			self.dbconfig[u'host'] = u'60.241.126.187'
 
