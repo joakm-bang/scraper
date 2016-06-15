@@ -2104,6 +2104,8 @@ if settings.scrapeUsers:
 		#hit user page
 		turl = 'https://www.jefit.com/members/user-logs/?yy=' + year + '&mm=' + month + '&xid=' + str(user)
 		soup = br.tryPage(turl,soup=True)
+		if soup is False:
+			continue
 		monthPage = MonthPage(soup, user=user)
 
 		#write users to database
