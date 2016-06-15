@@ -1052,7 +1052,7 @@ class monthQueue:
 
 class fillQueue:
 	#----------------------------------------------------------------------
-	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=50000, scramble=True):
+	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=1000, scramble=True):
 		self.onlyEven = onlyEven
 		self.limit = limit
 		self.ul = ul
@@ -1061,17 +1061,16 @@ class fillQueue:
 		self.refill()
 
 	def refill(self):
-		#self.queue = db.getSubset('userid', 
-						#tables.users, 
-						#sels=[('filled', '=', False), ('public', '=', True), ('scraped', '=', True),
-						#('userid', '<', self.ul), ('userid', '>', self.ll)], 
-						#onlyEven=self.onlyEven, 
-						#limit=self.limit)
+		self.queue = db.getSubset('userid', 
+						tables.users, 
+						sels=[('filled', '=', False), ('public', '=', True), ('scraped', '=', True),
+						('userid', '<', self.ul), ('userid', '>', self.ll)], 
+						onlyEven=self.onlyEven, 
+						limit=self.limit)
 
-		self.queue = db.fillChk(self.ll, self.ul, self.limit)
-
-		if self.scramble:
-			shuffle(self.queue)
+		#self.queue = db.fillChk(self.ll, self.ul, self.limit)
+		#if self.scramble:
+			#shuffle(self.queue)
 
 
 
@@ -1590,10 +1589,20 @@ class ProfilePage:
 class ProfileFiller:
 
 	def fillerStart(self):
-		if self.user < 2000000:
-			return datetime.fromordinal(733773)  #January 2010
+		
+		if self.user < 750000:
+			m = 733954
+			k = 0.00092
 		else:
-			return datetime.fromordinal(735234)  #January 2014
+			m = 734328
+			k = 0.00042153846
+		
+		d = datetime.fromordinal(int(round(m + k * self.user)))
+		return d - relativedelta(d, days = d.day-1)		
+		#if self.user < 2000000:
+			#return datetime.fromordinal(733773)  #January 2010
+		#else:
+			#return datetime.fromordinal(735234)  #January 2014
 	#----------------------------------------------------------------------
 	def __init__(self, user, startdate=None):
 		self.user = user
