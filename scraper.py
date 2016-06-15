@@ -116,8 +116,7 @@ class Settings:
 			self.bannedIP = '60.241.126.187'
 		#VBOXES
 		elif self.computer == 'vbox1':   # Vbox1  (users, , [2 000 001, 2 400 000])
-			#self.runLAN = True
-			self.runlocal = True
+			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeUsers = True
 			#self.onlyEven = True
