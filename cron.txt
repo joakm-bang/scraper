@@ -1,0 +1,4 @@
+@reboot bash /home/joakim/work/scraper/convpn.sh
+@reboot bash /home/joakim/work/scraper/gitpull.sh
+@reboot bash /home/joakim/work/scraper/startscraping.sh >> /home/joakim/work/log.log
+*/10 * * * * python /home/joakim/work/scraper/script_monitor.py
