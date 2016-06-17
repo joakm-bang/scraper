@@ -1,3 +1,5 @@
-#!/bin/bash
+#0!/bin/bash
+echo "Connecting to VPN: $(date)" > /home/joakim/work/t1.log
 cd /etc/openvpn/
-openvpn current.ovpn
+sudo openvpn current.ovpn
+exit 0

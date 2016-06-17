@@ -1,4 +1,6 @@
 #!/bin/bash
+sleep 2s
+echo "Running git: $(date)" > /home/joakim/work/t2.log
 cd /home/joakim/work/scraper
-git pull origin master
-supervisord -n -c supervisord.conf
+sudo git pull origin master
+exit 0
