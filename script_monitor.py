@@ -176,7 +176,7 @@ tminus15 = datetime.now() - timedelta(minutes=20)
 if lastact < tminus15:
 	with open('/home/joakim/work/restarts.log', 'ab') as logFile:
 		logFile.write(ctime() + ':\t Rebooting.\n')
-	system('sudu reboot')
+	system('sudo reboot')
 else:
 	with open('/home/joakim/work/monitor.log', 'wb') as logFile:
 		logFile.write(ctime() + ':\t Script is running fine.\n')
