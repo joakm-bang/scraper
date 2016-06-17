@@ -177,6 +177,6 @@ if lastact < tminus15:
 	system('sudu reboot')
 else:
 	with open('/home/joakim/work/monitor.log', 'wb') as logFile:
-		logFile.write(ctime() + ':\t Script is running fine.')
+		logFile.write(ctime() + ':\t Script is running fine.\n')
 	
 	
