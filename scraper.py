@@ -1614,7 +1614,8 @@ class ProfileFiller:
 		self.user = user
 		if startdate is None:
 			self.startdate = self.fillerStart()
-		self.enddate = datetime.now()
+		now = datetime.now()
+		self.enddate = datetime(year=now.year, month=now.month,day=1)
 
 	def fillLogs(self):
 
