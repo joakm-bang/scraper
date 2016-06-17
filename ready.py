@@ -1,7 +1,7 @@
 from os import system
 from json import load
 from urllib2 import urlopen
-from time import sleep
+from time import sleep, ctime
 
 def getIP(maxN=10, S=30):
 	ip = False
@@ -21,6 +21,8 @@ def getIP(maxN=10, S=30):
 				sleep(S)
 	return(ip)
 
+with open('/home/joakim/work/ready.log', 'wb') as logFile:
+	logFile.write(ctime() + ': Starting ready.py')
 done = False
 while not done:
 	ip = getIP()
@@ -28,4 +30,9 @@ while not done:
 	if ip != '60.241.126.187' and ping == 0:
 		done = True
 	else:
+		with open('/home/joakim/work/ready.log', 'ab') as logFile:
+			logFile.write(ctime() + ': System not ready. ' + 'Server not available. '*(ping!=0) + 'Proxy down. '*(ip == '60.241.126.187') + 'Sleeping for 30 seconds.\n')
 		sleep(30)
+
+with open('/home/joakim/work/ready.log', 'ab') as logFile:
+	logFile.write(ctime() + ': System ready. Proceeding.')
