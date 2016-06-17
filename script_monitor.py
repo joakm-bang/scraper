@@ -174,6 +174,8 @@ lastact = lastact.replace(tzinfo=None)
 lastact = lastact + timedelta(hours=10)
 tminus15 = datetime.now() - timedelta(minutes=25)
 if lastact < tminus15:
+	with open('/home/joakim/work/restarts.log', 'wb') as logFile:
+		logFile.write(ctime() + ':\t Rebooting.\n')
 	system('sudu reboot')
 else:
 	with open('/home/joakim/work/monitor.log', 'wb') as logFile:
