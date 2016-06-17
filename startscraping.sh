@@ -1,5 +1,4 @@
 #!/bin/bash
-sleep 45s
 echo "Staring to scarpe: $(date)" > /home/joakim/work/t3.log
 cd /home/joakim/work/scraper/
 sudo supervisord -n -c supervisord.conf
