@@ -172,7 +172,7 @@ lastact = heroku.getValues('activity', 'monitor_computer', sels=[('computer_name
 #check if it's 25 minutes late
 lastact = lastact.replace(tzinfo=None)
 lastact = lastact + timedelta(hours=10)
-tminus15 = datetime.now() - timedelta(minutes=25)
+tminus15 = datetime.now() - timedelta(minutes=20)
 if lastact < tminus15:
 	with open('/home/joakim/work/restarts.log', 'ab') as logFile:
 		logFile.write(ctime() + ':\t Rebooting.\n')
