@@ -24,15 +24,20 @@ def getIP(maxN=10, S=30):
 with open('/home/joakim/work/ready.log', 'wb') as logFile:
 	logFile.write(ctime() + ': Starting ready.py\n\n')
 done = False
+t = 0
 while not done:
+	t = t + 1
+	if t == 30:
+		#15 minutes already. Try bouncing it.
+		system('sudo reboot')
 	ip = getIP()
 	ping = system('ping -c 1 192.168.0.2')
 	if ip != '60.241.126.187' and ping == 0:
 		done = True
 	else:
 		with open('/home/joakim/work/ready.log', 'ab') as logFile:
-			logFile.write(ctime() + ': System not ready. ' + 'Server not available. '*(ping!=0) + 'Proxy down. '*(ip == '60.241.126.187') + 'Sleeping for 30 seconds.\n')
+			logFile.write(ctime() + '(' + str(t) + '): System not ready. ' + 'Server not available. '*(ping!=0) + 'Proxy down. '*(ip == '60.241.126.187') + 'Sleeping for 30 seconds.\n')
 		sleep(30)
 
 with open('/home/joakim/work/ready.log', 'ab') as logFile:
-	logFile.write('\n' + ctime() + ': System ready. Proceeding.')
+	logFile.write('\n' + ctime() + ': System ready. Proceeding.\n')
