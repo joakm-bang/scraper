@@ -208,14 +208,14 @@ class Settings:
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			#self.onlyEven = False
-			self.ll = 300001
-			self.ul = 900000
+			self.ll = 1900001
+			self.ul = 2000000
 		elif self.computer == 'vbox13':   # Vbox13  (logs, , [1 800 001, 2 100 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			self.ll = 1800001
-			self.ul = 2100000
+			self.ul = 1900000
 		elif self.computer == 'vbox14':   # Vbox14  (logs, , [900 001, 1 200 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
