@@ -22,7 +22,7 @@ def getIP(maxN=10, S=30):
 	return(ip)
 
 with open('/home/joakim/work/ready.log', 'wb') as logFile:
-	logFile.write(ctime() + ': Starting ready.py')
+	logFile.write(ctime() + ': Starting ready.py\n\n')
 done = False
 while not done:
 	ip = getIP()
@@ -35,4 +35,4 @@ while not done:
 		sleep(30)
 
 with open('/home/joakim/work/ready.log', 'ab') as logFile:
-	logFile.write(ctime() + ': System ready. Proceeding.')
+	logFile.write('\n' + ctime() + ': System ready. Proceeding.')
