@@ -70,6 +70,7 @@ class Settings:
 		self.ul = None
 		self.ll = None
 		self.commitFreq = 1
+		self.scraped = True
 		# machine specific variables
 		try:
 			self.dropboxPath = environ['DROPBOX_PATH']
@@ -1052,19 +1053,24 @@ class monthQueue:
 
 class fillQueue:
 	#----------------------------------------------------------------------
-	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=1000, scramble=True):
+	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=1000, \
+	             scramble=True, filled=False, public=True, scraped=True):
 		self.onlyEven = onlyEven
 		self.limit = limit
 		self.ul = ul
 		self.ll = ll
 		self.scramble = scramble
+		self.filled = filled
+		self.public = public
+		self.scraped = scraped
 		self.refill()
 
 	def refill(self):
 		self.queue = db.getSubset('userid', 
 						tables.users, 
-						sels=[('filled', '=', False), ('public', '=', True), ('scraped', '=', True),
-						('userid', '<', self.ul), ('userid', '>', self.ll)], 
+						sels=[('filled', '=', self.filled), ('public', '=', self.public), 
+		                      ('scraped', '=', self.scraped), ('userid', '<', self.ul), 
+		                      ('userid', '>', self.ll)], 
 						onlyEven=self.onlyEven, 
 						limit=self.limit)
 
@@ -2195,7 +2201,7 @@ if settings.scrapeMonths:
 # ** Fill up months ** 
 if settings.fillMonths:
 
-	Q = fillQueue(onlyEven=settings.onlyEven, ul=settings.ul, ll=settings.ll)
+	Q = fillQueue(onlyEven=settings.onlyEven, ul=settings.ul, ll=settings.ll, scraped=settings.scraped)
 
 	t = datetime.now()
 	while not Q.isempty():
@@ -2222,8 +2228,10 @@ if settings.fillMonths:
 		#don't fill again (and commit)
 		if len(scraped) > 0:
 			db.updateField(tables.users, 'firstdate', min(scraped, key = lambda x: x[1])[1], 'userid', user, commit=False)
+		if not Q.scraped:
+			db.updateField(tables.users, 'scraped', True, 'userid', user, commit=False)
 		db.updateField(tables.users, 'filled', True, 'userid', user)
-
+		
 		#refill queue if necessary
 		if Q.isempty():
 			Q.refill()
