@@ -89,10 +89,10 @@ class Settings:
 			self.ll = 400001
 			self.ul = 800000
 			self.delayLambda = 7
-		elif self.computer == 'hemma':   # Hemma  (logs, , [1 500 001, 1 800 000])
+		elif self.computer == 'hemma':   # Hemma  (logs, , [1 700 001, 1 800 000])
 			self.runlocal = True
 			self.scrapeLogs = True			
-			self.ll = 1500001
+			self.ll = 1700001
 			self.ul = 1800000
 
 		elif self.computer == 'toshiban':   # Toshiban (users, , [800 001, 1 200 000])
@@ -196,6 +196,7 @@ class Settings:
 			#self.ll = 3200001
 			#self.ul = 4000000
 			self.fillMonths = True
+			self.scraped = False
 			self.ll = 2400001
 			self.ul = 3000000
 		elif self.computer == 'vbox11':   # Vbox11  (fill, , [1, 2 000 000])
@@ -218,19 +219,19 @@ class Settings:
 			self.scrapeLogs = True
 			self.ll = 1800001
 			self.ul = 1900000
-		elif self.computer == 'vbox14':   # Vbox14  (logs, , [900 001, 1 200 000])
+		elif self.computer == 'vbox14':   # Vbox14  (logs, , [1 500 001, 1 700 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			#self.onlyEven = False
-			self.ll = 900001
-			self.ul = 1200000
+			self.ll = 1500001
+			self.ul = 1700000
 		elif self.computer == 'vbox15':   # Vbox15  (logs, , [1 200 001, 1 500 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			#self.onlyEven = True
-			self.ll = 1200001
+			self.ll = 900001
 			self.ul = 1500000
 		else:
 			raise settingsError()
