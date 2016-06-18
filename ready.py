@@ -41,3 +41,5 @@ while not done:
 
 with open('/home/joakim/work/ready.log', 'ab') as logFile:
 	logFile.write('\n' + ctime() + ': System ready. Proceeding.\n')
+
+system('gnome-terminal -x tailf ~/work/log.log')
