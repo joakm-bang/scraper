@@ -195,15 +195,15 @@ class Settings:
 			#self.scrapeMonths = True
 			#self.ll = 3200001
 			#self.ul = 4000000
-			self.fillMonths = True
-			self.scraped = False
+			self.scrapeMonths = True
+			#self.scraped = False
 			self.ll = 2400001
 			self.ul = 3000000
 		elif self.computer == 'vbox11':   # Vbox11  (fill, , [1, 2 000 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
-			self.fillMonths = True
-			self.scraped = False
+			self.scrapeMonths = True
+			#self.scraped = False
 			self.ll = 3000001
 			self.ul = 3600000
 		elif self.computer == 'vbox12':   # Vbox12  (logs, , [300 001, 600 000])
