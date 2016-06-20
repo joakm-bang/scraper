@@ -2248,7 +2248,8 @@ if settings.scrapeMonths:
 		profile.writeUserInfo(commit=False)
 
 		#don't scrape again for now
-		db.updateField(tables.users, 'scraped', True, 'userid', user)
+		db.updateField(tables.users, 'scraped', True, 'userid', user, commit=False)
+		db.updateField(tables.users, 'filled', True, 'userid', user)
 
 		if Q.isempty():
 			Q.refill()
