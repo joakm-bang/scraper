@@ -2175,7 +2175,11 @@ if settings.scrapeUsers:
 		#write users to database
 		monthPage.scraped = False
 		monthPage.prepare4db(date, date)
-		db.write2db(monthPage.todb, tables.users, insertKeys=False)  #writing to users (no need for id fix)
+		try:
+			db.write2db(monthPage.todb, tables.users, insertKeys=False)  #writing to users (no need for id fix)
+		except:
+			fixafelet
+			continue
 
 		#write friends to database
 		db.insertMany(tables.friends, ('user1', 'user2'), monthPage.friends)
