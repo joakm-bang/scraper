@@ -156,11 +156,11 @@ class Settings:
 			#self.scrapeMonths = True
 			#self.ll = 0
 			#self.ul = 800000
-			
+
 			self.fillMonths = True
 			self.ll = 1
 			self.ul = 600000
-			
+
 		elif self.computer == 'vbox7':   # Vbox7  (months, , [800 001, 1 600 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
@@ -1056,7 +1056,7 @@ class monthQueue:
 class fillQueue:
 	#----------------------------------------------------------------------
 	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=1000, \
-	             scramble=True, filled=False, public=True, scraped=True):
+		         scramble=True, filled=False, public=True, scraped=True):
 		self.onlyEven = onlyEven
 		self.limit = limit
 		self.ul = ul
@@ -1069,12 +1069,12 @@ class fillQueue:
 
 	def refill(self):
 		self.queue = db.getSubset('userid', 
-						tables.users, 
-						sels=[('filled', '=', self.filled), ('public', '=', self.public), 
-		                      ('scraped', '=', self.scraped), ('userid', '<', self.ul), 
-		                      ('userid', '>', self.ll)], 
-						onlyEven=self.onlyEven, 
-						limit=self.limit)
+				                  tables.users, 
+				                  sels=[('filled', '=', self.filled), ('public', '=', self.public), 
+				                        ('scraped', '=', self.scraped), ('userid', '<', self.ul), 
+				                        ('userid', '>', self.ll)], 
+				                  onlyEven=self.onlyEven, 
+				                  limit=self.limit)
 
 		#self.queue = db.fillChk(self.ll, self.ul, self.limit)
 		#if self.scramble:
@@ -1386,8 +1386,18 @@ class MonthPage:
 class ProfilePage:
 	""""""
 
+	def fillerStart(self):
+		if self.user < 750000:
+			m = 733954
+			k = 0.00092
+		else:
+			m = 734328
+			k = 0.00042153846
+
+		d = datetime.fromordinal(int(round(m + k * self.user)))
+		return d - relativedelta(d, days = d.day-1)	
 	#----------------------------------------------------------------------
-	def __init__(self, soup, user, addFriends=True):		
+	def __init__(self, soup, user, addFriends=True,startdate=None):		
 
 		def getDates(soppa, divclass):
 			x = soppa.findAll('div', {'class':divclass})
@@ -1418,6 +1428,12 @@ class ProfilePage:
 		self.soup = soup
 		self.user = user
 		self.oldfriends = []
+
+		#stop scraping half finished months		
+		if startdate is None:
+			self.startdate = self.fillerStart()
+		now = datetime.now()
+		self.enddate = datetime(year=now.year, month=now.month,day=1)		
 
 		# Birthyear/sex/country
 		x = soup.find('div', {'style':'float:right; margin-right:10px; color:#666666'})
@@ -1503,7 +1519,6 @@ class ProfilePage:
 
 	def getLogs(self, scrapeddate, maxMiss = 2):
 
-
 		def procMonth(t):
 			yy = t.year
 			mm = t.month
@@ -1514,80 +1529,120 @@ class ProfilePage:
 						      singleFriend=True)
 			return(mpage.dbrows, set(mpage.friends))
 
-		#intially scraped month
-		sdate = firstOfMonth(datetime.fromordinal(scrapeddate))
-		scraped = [sdate]
+		#previously scraped months
+		scraped = []
 		oldscrapes = db.getValues('scrapeddate', tables.months, sels=[('userid_id', '=', self.user)])
 		friends = set([])
 		links = []
 
-		if self.firstWO is None:
-			t1 = sdate
-			t2 = sdate
-		else:
-			t1 = firstOfMonth(self.firstWO)
-			t2 = firstOfMonth(self.lastWO)
+		#loop over all months
+		t = self.startdate
+		while (t < self.enddate):
 
-		#from first to last log
-		for m in range(0,relativedelta(t2,t1).months+1):
-			t = t1 + relativedelta(t1, months=m)
-			if (t not in scraped) and (t not in oldscrapes):
-				(dmpRows, dmpFriends) = procMonth(t)
-				links = links + dmpRows
-				friends = friends.union(dmpFriends)
-				scraped.append(t)
-				emp = (len(dmpRows) == 0)
-				print('Middle scrape (' + str(self.user) + ') ' + str(t.year) + '-' + str(t.month) + \
-					  ' (empty)'*emp + ' (full)'*(1-emp))
-
-		#after last log
-		misses = 0
-		m = 0
-		t = t2
-		while (misses < maxMiss) and (t < sdate):
-			m = m + 1
-			t = t2 + relativedelta(t2, months=m)
-			if (t not in scraped) and (t not in oldscrapes):
+			nt = datetime.toordinal(t)
+			if (t not in scraped) and (nt not in oldscrapes):
 				(dmpRows, dmpFriends) = procMonth(t)
 				links = links + dmpRows
 				friends = friends.union(dmpFriends)
 				scraped.append(t)
 				if (len(dmpRows) == 0):
-					misses = misses + 1
-					print('Foward scrape (' + str(user) + '). Empty month: ' + str(t.year) + '-' + \
-						  str(t.month) + '\t\t(' + str(misses) + ' misses)')
+					print('(' + str(user) + ') - Empty month: ' + str(t.year) + '-' + \
+						  str(t.month))
 				else:
-					misses = 0
-					print('Foward scrape (' + str(user) + '). Full month: ' + str(t.year) + '-' + \
-						  str(t.month) + '\t\t(' + str(misses) + ' misses)')
-
-		#before first log
-		mint = datetime.fromordinal(734503)
-		misses = 0
-		m = 0
-		t = t1
-		while (misses < maxMiss + 1) and (t >= mint):
-			m = m + 1
-			t = t1 + relativedelta(t1, months=-m)
-			if (t not in scraped) and (t not in oldscrapes):
-				(dmpRows, dmpFriends) = procMonth(t)
-				links = links + dmpRows
-				friends = friends.union(dmpFriends)
-				scraped.append(t)
-				if (len(dmpRows) == 0):
-					misses = misses + 1
-					print('Backward scrape(' + str(user) + '). Empty month: ' + str(t.year) + '-' + \
-						  str(t.month) + '\t\t(' + str(misses) + ' misses)')
-				else:
-					misses = 0
-					print('Backward scrape(' + str(user) + '). Full month: ' + str(t.year) + '-' + \
-						  str(t.month) + '\t\t(' + str(misses) + ' misses)')
+					print('(' + str(user) + ') - Full month: ' + str(t.year) + '-' + \
+						  str(t.month))
+			t = t + relativedelta(t, months=1)
 
 		uscraped = []
 		for t in scraped:
 			uscraped.append((self.user, datetime.toordinal(t)))
 
 		return(friends, links, uscraped)
+
+		#def procMonth(t):
+			#yy = t.year
+			#mm = t.month
+			#murl = 'https://www.jefit.com/members/user-logs/?yy=' + str(yy) + '&mm=' + str(mm) + \
+				#'&xid=' + str(self.user)
+			#msoup = br.tryPage(murl, soup=True)
+			#mpage = MonthPage(msoup, getusername=False, getfriends=True, getlogs=True, user=self.user, 
+							#singleFriend=True)
+			#return(mpage.dbrows, set(mpage.friends))
+
+		##intially scraped month
+		#sdate = firstOfMonth(datetime.fromordinal(scrapeddate))
+		#scraped = [sdate]
+		#oldscrapes = db.getValues('scrapeddate', tables.months, sels=[('userid_id', '=', self.user)])
+		#friends = set([])
+		#links = []
+
+		#if self.firstWO is None:
+			#t1 = sdate
+			#t2 = sdate
+		#else:
+			#t1 = firstOfMonth(self.firstWO)
+			#t2 = firstOfMonth(self.lastWO)
+
+		##from first to last log
+		#for m in range(0,relativedelta(t2,t1).months+1):
+			#t = t1 + relativedelta(t1, months=m)
+			#if (t not in scraped) and (t not in oldscrapes):
+				#(dmpRows, dmpFriends) = procMonth(t)
+				#links = links + dmpRows
+				#friends = friends.union(dmpFriends)
+				#scraped.append(t)
+				#emp = (len(dmpRows) == 0)
+				#print('Middle scrape (' + str(self.user) + ') ' + str(t.year) + '-' + str(t.month) + \
+						#' (empty)'*emp + ' (full)'*(1-emp))
+
+		##after last log
+		#misses = 0
+		#m = 0
+		#t = t2
+		#while (misses < maxMiss) and (t < sdate):
+			#m = m + 1
+			#t = t2 + relativedelta(t2, months=m)
+			#if (t not in scraped) and (t not in oldscrapes):
+				#(dmpRows, dmpFriends) = procMonth(t)
+				#links = links + dmpRows
+				#friends = friends.union(dmpFriends)
+				#scraped.append(t)
+				#if (len(dmpRows) == 0):
+					#misses = misses + 1
+					#print('Foward scrape (' + str(user) + '). Empty month: ' + str(t.year) + '-' + \
+							#str(t.month) + '\t\t(' + str(misses) + ' misses)')
+				#else:
+					#misses = 0
+					#print('Foward scrape (' + str(user) + '). Full month: ' + str(t.year) + '-' + \
+							#str(t.month) + '\t\t(' + str(misses) + ' misses)')
+
+		##before first log
+		#mint = datetime.fromordinal(734503)
+		#misses = 0
+		#m = 0
+		#t = t1
+		#while (misses < maxMiss + 1) and (t >= mint):
+			#m = m + 1
+			#t = t1 + relativedelta(t1, months=-m)
+			#if (t not in scraped) and (t not in oldscrapes):
+				#(dmpRows, dmpFriends) = procMonth(t)
+				#links = links + dmpRows
+				#friends = friends.union(dmpFriends)
+				#scraped.append(t)
+				#if (len(dmpRows) == 0):
+					#misses = misses + 1
+					#print('Backward scrape(' + str(user) + '). Empty month: ' + str(t.year) + '-' + \
+							#str(t.month) + '\t\t(' + str(misses) + ' misses)')
+				#else:
+					#misses = 0
+					#print('Backward scrape(' + str(user) + '). Full month: ' + str(t.year) + '-' + \
+							#str(t.month) + '\t\t(' + str(misses) + ' misses)')
+
+		#uscraped = []
+		#for t in scraped:
+			#uscraped.append((self.user, datetime.toordinal(t)))
+
+		#return(friends, links, uscraped)
 
 
 
@@ -1597,14 +1652,14 @@ class ProfilePage:
 class ProfileFiller:
 
 	def fillerStart(self):
-		
+
 		if self.user < 750000:
 			m = 733954
 			k = 0.00092
 		else:
 			m = 734328
 			k = 0.00042153846
-		
+
 		d = datetime.fromordinal(int(round(m + k * self.user)))
 		return d - relativedelta(d, days = d.day-1)		
 		#if self.user < 2000000:
@@ -2234,7 +2289,7 @@ if settings.fillMonths:
 		if not Q.scraped:
 			db.updateField(tables.users, 'scraped', True, 'userid', user, commit=False)
 		db.updateField(tables.users, 'filled', True, 'userid', user)
-		
+
 		#refill queue if necessary
 		if Q.isempty():
 			Q.refill()
@@ -2302,5 +2357,4 @@ if settings.scrapeLogs:
 
 
 db.close() #close database connection
-
 
