@@ -891,7 +891,7 @@ class database:
 				#return False
 		#except:
 			#pass		
-		raise DBerror('Fatal databse error.')
+		raise DBerror('Fatal database error.')
 
 	def setNoteCounter(self):
 		dmp = self.getValues('noteid', tables.notes)
@@ -2177,8 +2177,7 @@ if settings.scrapeUsers:
 		monthPage.prepare4db(date, date)
 		try:
 			db.write2db(monthPage.todb, tables.users, insertKeys=False)  #writing to users (no need for id fix)
-		except:
-			fixafelet
+		except DBerror:
 			continue
 
 		#write friends to database
