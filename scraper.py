@@ -88,7 +88,7 @@ class Settings:
 			#self.onlyEven = True
 			self.ll = 400001
 			self.ul = 800000
-			self.delayLambda = 7
+			self.delayLambda = 5
 		elif self.computer == 'hemma':   # Hemma  (logs, , [1 700 001, 1 800 000])
 			self.runlocal = True
 			self.scrapeLogs = True			
