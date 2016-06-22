@@ -21,8 +21,10 @@ def getIP(maxN=10, S=30):
 				sleep(S)
 	return(ip)
 
-with open('/home/joakim/work/ready.log', 'wb') as logFile:
-	logFile.write(ctime() + ': Starting ready.py\n\n')
+with open('/home/joakim/work/log.log', 'wb') as logFile:
+	tmpStr = ctime() + ': Starting ready.py'
+	statStr = '*'*len(tmpStr) + '\n' + tmpStr + '\n' + '*'*len(tmpStr) + '\n\n' 
+	logFile.write(statStr)
 done = False
 t = 0
 while not done:
@@ -35,11 +37,11 @@ while not done:
 	if ip != '60.241.126.187' and ping == 0:
 		done = True
 	else:
-		with open('/home/joakim/work/ready.log', 'ab') as logFile:
+		with open('/home/joakim/work/log.log', 'ab') as logFile:
 			logFile.write(ctime() + '(' + str(t) + '): System not ready. ' + 'Server not available. '*(ping!=0) + 'Proxy down. '*(ip == '60.241.126.187') + 'Sleeping for 30 seconds.\n')
 		sleep(30)
 
-with open('/home/joakim/work/ready.log', 'ab') as logFile:
+with open('/home/joakim/work/log.log', 'ab') as logFile:
 	logFile.write('\n' + ctime() + ': System ready. Proceeding.\n')
 
 #system('gnome-terminal -x tailf ~/work/log.log')
