@@ -89,11 +89,11 @@ class Settings:
 			self.ll = 400001
 			self.ul = 800000
 			self.delayLambda = 5
-		elif self.computer == 'hemma':   # Hemma  (logs, , [1 700 001, 1 800 000])
+		elif self.computer == 'hemma':   # Hemma  (logs, , [1 700 001, 1 900 000])
 			self.runlocal = True
 			self.scrapeLogs = True			
 			self.ll = 1700001
-			self.ul = 1800000
+			self.ul = 1900000
 
 		elif self.computer == 'toshiban':   # Toshiban (users, , [800 001, 1 200 000])
 			self.scrapeUsers = True
@@ -213,12 +213,12 @@ class Settings:
 			#self.onlyEven = False
 			self.ll = 1900001
 			self.ul = 2000000
-		elif self.computer == 'vbox13':   # Vbox13  (logs, , [1 800 001, 2 100 000])
+		elif self.computer == 'vbox13':   # Vbox13  (users, , [1, 400 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
-			self.scrapeLogs = True
-			self.ll = 1800001
-			self.ul = 1900000
+			self.scrapeUsers = True
+			self.ll = 1
+			self.ul = 400000
 		elif self.computer == 'vbox14':   # Vbox14  (logs, , [1 500 001, 1 700 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
