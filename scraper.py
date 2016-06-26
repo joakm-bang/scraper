@@ -219,20 +219,20 @@ class Settings:
 			self.scrapeUsers = True
 			self.ll = 1
 			self.ul = 400000
-		elif self.computer == 'vbox14':   # Vbox14  (logs, , [1 500 001, 1 900 000])
+		elif self.computer == 'vbox14':   # Vbox14  (logs, , [900 001, 1 900 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			#self.onlyEven = False
-			self.ll = 1500001
+			self.ll = 900001
 			self.ul = 1900000
-		elif self.computer == 'vbox15':   # Vbox15  (logs, , [1 200 001, 1 500 000])
+		elif self.computer == 'vbox15':   # Vbox15  (logs, , [2 200 001, 2 300 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			#self.onlyEven = True
-			self.ll = 900001
-			self.ul = 1500000
+			self.ll = 2200001
+			self.ul = 2300000
 		else:
 			raise settingsError()
 
