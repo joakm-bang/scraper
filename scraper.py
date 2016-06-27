@@ -233,6 +233,13 @@ class Settings:
 			#self.onlyEven = True
 			self.ll = 2200001
 			self.ul = 2300000
+		elif self.computer == 'vbox19':   # Vbox19  (months, , [300 001, 400 000])
+			self.runLAN = True
+			self.bannedIP = '60.241.126.187'
+			self.scrapeMonths = True
+			#self.onlyEven = True
+			self.ll = 300001
+			self.ul = 400000
 		else:
 			raise settingsError()
 
