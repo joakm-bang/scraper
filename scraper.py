@@ -95,10 +95,10 @@ class Settings:
 			self.ll = 2100001
 			self.ul = 2200000
 
-		elif self.computer == 'toshiban':   # Toshiban (users, , [200 001, 400 000])
+		elif self.computer == 'toshiban':   # Toshiban (users, , [300 001, 400 000])
 			self.scrapeUsers = True
 			#self.onlyEven = True
-			self.ll = 200001
+			self.ll = 300001
 			self.ul = 400000
 		elif self.computer == 'litenvit':   # Liten vit (users, , [500 001, 600 000])
 			self.runLAN = True
@@ -122,20 +122,20 @@ class Settings:
 			#self.onlyEven = True
 			self.ll = 2000001
 			self.ul = 2400000
-		elif self.computer == 'vbox2':   # Vbox2  (users, , [2 400 000, 2 800 000])
+		elif self.computer == 'vbox2':   # Vbox2  (users, , [2 400 000, 3 200 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeUsers = True
 			#self.onlyEven = False
 			self.ll = 2400001
-			self.ul = 2800000
-		elif self.computer == 'vbox3':   # Vbox3  (users, , [2 800 001, 3 200 000])
+			self.ul = 3200000
+		elif self.computer == 'vbox3':   # Vbox3  (users, , [200 001, 300 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeUsers = True
 			#self.onlyEven = False
-			self.ll = 2800001
-			self.ul = 3200000
+			self.ll = 200001
+			self.ul = 300000
 		elif self.computer == 'vbox4':   # Vbox4  (users, , [3 200 001, 3 600 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
