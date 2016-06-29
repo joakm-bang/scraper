@@ -235,35 +235,35 @@ class Settings:
 			self.ul = 2300000
 			
 		elif self.computer == 'vbox16':   # Vbox16  (months, , [1, 100 000])
-			self.runLAN = True
+			#self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeMonths = True
 			#self.onlyEven = True
 			self.ll = 1
 			self.ul = 100000
 		elif self.computer == 'vbox17':   # Vbox17  (months, , [100 001, 200 000])
-			self.runLAN = True
+			#self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeMonths = True
 			#self.onlyEven = True
 			self.ll = 100001
 			self.ul = 200000
 		elif self.computer == 'vbox18':   # Vbox19  (months, , [200 001, 300 000])
-			self.runLAN = True
+			#self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeMonths = True
 			#self.onlyEven = True
 			self.ll = 200001
 			self.ul = 300000
 		elif self.computer == 'vbox19':   # Vbox19  (months, , [300 001, 400 000])
-			self.runLAN = True
+			#self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeMonths = True
 			#self.onlyEven = True
 			self.ll = 300001
 			self.ul = 400000
 		elif self.computer == 'vbox20':   # Vbox20  (months, , [400 001, 500 000])
-			self.runLAN = True
+			#self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeMonths = True
 			#self.onlyEven = True
