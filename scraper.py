@@ -77,11 +77,11 @@ class Settings:
 		except:
 			self.dropboxPath = '/home/joakim/'
 		self.computer = environ['COMPUTER_NAME']
-		if self.computer == 'kontoret':  # Kontoret (users, , [0, 400 000])
+		if self.computer == 'kontoret':  # Kontoret (users, , [0, 0])
 			self.scrapeUsers = True
 			#self.onlyEven = True
 			self.ll = 0
-			self.ul = 400000
+			self.ul = 0
 			self.delayLambda = 7
 		elif self.computer == 'server':   #Server (users, , [400 001, 1 200 000])
 			self.scrapeUsers = True
@@ -150,7 +150,7 @@ class Settings:
 			#self.onlyEven = None
 			self.ll = 3600001
 			self.ul = 4000000
-		elif self.computer == 'vbox6':   # Vbox6  (months, , [1, 800 000])
+		elif self.computer == 'vbox6':   # Vbox6  (fillmonths, , [500 001, 600 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			#self.scrapeMonths = True
@@ -158,7 +158,7 @@ class Settings:
 			#self.ul = 800000
 
 			self.fillMonths = True
-			self.ll = 1
+			self.ll = 500001
 			self.ul = 600000
 
 		elif self.computer == 'vbox7':   # Vbox7  (months, , [800 001, 1 600 000])
