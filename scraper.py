@@ -115,19 +115,19 @@ class Settings:
 			self.ul = 1500000
 			self.bannedIP = '60.241.126.187'
 		#VBOXES
-		elif self.computer == 'vbox1':   # Vbox1  (users, , [2 000 001, 2 400 000])
+		elif self.computer == 'vbox1':   # Vbox1  (users, , [2 000 001, 2 600 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeUsers = True
 			#self.onlyEven = True
 			self.ll = 2000001
-			self.ul = 2400000
-		elif self.computer == 'vbox2':   # Vbox2  (users, , [2 400 000, 3 200 000])
+			self.ul = 2600000
+		elif self.computer == 'vbox2':   # Vbox2  (users, , [2 600 000, 3 200 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeUsers = True
 			#self.onlyEven = False
-			self.ll = 2400001
+			self.ll = 2600001
 			self.ul = 3200000
 		elif self.computer == 'vbox3':   # Vbox3  (users, , [200 001, 300 000])
 			self.runLAN = True
