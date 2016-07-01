@@ -128,12 +128,12 @@ class Settings:
 			#self.onlyEven = False
 			self.ll = 2600001
 			self.ul = 3200000
-		elif self.computer == 'vbox3':   # Vbox3  (users, , [200 001, 300 000])
+		elif self.computer == 'vbox3':   # Vbox3  (users, , [1, 300 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeUsers = True
 			#self.onlyEven = False
-			self.ll = 200001
+			self.ll = 1
 			self.ul = 300000
 		elif self.computer == 'vbox4':   # Vbox4  (users, , [3 200 001, 3 600 000])
 			self.runLAN = True
