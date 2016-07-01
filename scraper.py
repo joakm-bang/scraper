@@ -100,12 +100,11 @@ class Settings:
 			#self.onlyEven = True
 			self.ll = 300001
 			self.ul = 400000
-		elif self.computer == 'litenvit':   # Liten vit (users, , [500 001, 600 000])
+		elif self.computer == 'litenvit':   # Liten vit (users, , [4 000 001, 4 100 000])
 			self.runLAN = True
-			self.scrapeMonths = True
-			#self.onlyEven = False
-			self.ll = 500001
-			self.ul = 600000
+			self.scrapeUsers = True
+			self.ll = 4000001
+			self.ul = 4100000
 			self.bannedIP = '60.241.126.187'
 		elif self.computer == 'garderoben':   # Garderoben (users, , [1 200 001, 1 500 000])
 			self.runLAN = True
