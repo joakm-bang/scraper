@@ -1463,7 +1463,7 @@ class ProfilePage:
 		if startdate is None:
 			self.startdate = self.fillerStart()
 		now = datetime.now()
-		self.enddate = datetime(year=now.year, month=now.month,day=1)		
+		self.enddate = datetime(year=now.year, month=now.month-1,day=1)		
 
 		# Birthyear/sex/country
 		x = soup.find('div', {'style':'float:right; margin-right:10px; color:#666666'})
