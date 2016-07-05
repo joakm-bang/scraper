@@ -98,11 +98,11 @@ class Settings:
 			self.scrapeUsers = True
 			self.ll = 1
 			self.ul = 3400000
-		elif self.computer == 'litenvit':   # Liten vit (month, , [100 001, 200 000])
+		elif self.computer == 'litenvit':   # Liten vit (logs, , [2 900 001, 2 950 000])
 			self.runLAN = True
-			self.scrapeMonths = True
-			self.ll = 100001
-			self.ul = 200000
+			self.scrapeLogs = True
+			self.ll = 2900001
+			self.ul = 2950000
 			self.bannedIP = '60.241.126.187'
 		elif self.computer == 'garderoben':   # Garderoben (month, , [1 200 001, 1 500 000])
 			self.runLAN = True
