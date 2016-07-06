@@ -94,10 +94,10 @@ class Settings:
 			self.ll = 2400001
 			self.ul = 2500000
 
-		elif self.computer == 'toshiban':   # Toshiban (users, , [1, 4 000 000])
-			self.scrapeUsers = True
-			self.ll = -1
-			self.ul = 4000001
+		elif self.computer == 'toshiban':   # Toshiban (month, , [100 001, 200 000])
+			self.scrapeMonths = True
+			self.ll = 100001
+			self.ul = 200000
 		elif self.computer == 'litenvit':   # Liten vit (logs, , [2 900 001, 3 000 000])
 			self.runLAN = True
 			self.scrapeLogs = True
