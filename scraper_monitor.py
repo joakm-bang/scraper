@@ -162,7 +162,7 @@ class database:
 					self.connect()
 				except:
 					pass
-		raise DBerror('Fatal databse error.')
+		#raise DBerror('Fatal databse error.')
 
 
 heroku = database(settings.herokuconfig)
