@@ -44,9 +44,9 @@ while not done:
 		sleep(90)
 
 # Pull from git
-with open('/home/joakim/work/startup.log', 'ab') as logFile:
-	logFile.write('\n' + ctime() + ': Connection established. Proceeding to pull from git.\n')
-gitpull = system('sudo bash ~/work/scraper/gitpull.sh')
+#with open('/home/joakim/work/startup.log', 'ab') as logFile:
+#	logFile.write('\n' + ctime() + ': Connection established. Proceeding to pull from git.\n')
+#gitpull = system('sudo bash ~/work/scraper/gitpull.sh')
 
 # Connect to VPN
 with open('/home/joakim/work/startup.log', 'ab') as logFile:
