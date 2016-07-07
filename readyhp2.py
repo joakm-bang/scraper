@@ -45,4 +45,4 @@ with open('/home/joakim/work/startup2.log', 'ab') as logFile:
 	logFile.write('\n' + ctime() + ': System ready. Proceeding to start supervisor.\n')
 
 #Start scraping
-system('sudo supervisord -n -c ~/work/scraper/supervisord.conf >> ~/work/log.log')
+system('sudo supervisord -n -c ~/work/scraper/supervisord.conf')
