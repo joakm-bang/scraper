@@ -46,7 +46,7 @@ while not done:
 # Pull from git
 with open('/home/joakim/work/log.log', 'ab') as logFile:
 	logFile.write('\n' + ctime() + ': Connection established. Proceeding to pull from git.\n')
-gitpull = system('sudo ~/work/scraper git pull origin master')
+gitpull = system('sudo bash ~/work/scraper/gitpull.sh')
 
 # Connect to VPN
 with open('/home/joakim/work/log.log', 'ab') as logFile:
@@ -60,8 +60,9 @@ while not done:
 		#15 minutes already. Try bouncing it.
 		system('sudo reboot')
 	ip = getIP()
-	ping = system('ping -c 1 60.241.126.187')
-	if ip != '60.241.126.187' and ping == 0:
+	#ping = system('ping -c 1 60.241.126.187')
+	if ip != '60.241.126.187' :
+	#and ping == 0:
 		done = True
 	else:
 		with open('/home/joakim/work/log.log', 'ab') as logFile:
