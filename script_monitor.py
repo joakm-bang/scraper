@@ -170,7 +170,12 @@ heroku = database(settings.herokuconfig)
 #get latest activity
 lastact = heroku.getValues('activity', 'monitor_computer', sels=[('computer_name', '=', settings.computer)])
 #check if it's 25 minutes late
-lastact = lastact.replace(tzinfo=None)
+try:
+	lastact = lastact.replace(tzinfo=None)
+except AttributeError:
+	with open('/home/joakim/work/restarts.log', 'ab') as logFile:
+		logFile.write(ctime() + ':\t Rebooting (network error).\n')
+	system('sudo reboot')	
 lastact = lastact + timedelta(hours=10)
 tminus15 = datetime.now() - timedelta(minutes=20)
 if lastact < tminus15:
