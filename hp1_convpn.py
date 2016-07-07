@@ -52,6 +52,7 @@ while not done:
 
 # Pull from git
 #gitpull = system('sudo bash ~/work/scraper/gitpull.sh')
+gitpull = 'disabled'
 
 # Connect to VPN
 mess = '\n' + ctime() + ': Pulled from git (' + str(gitpull) + '). Proceeding to connect VPN.\n'
