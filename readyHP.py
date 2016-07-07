@@ -61,12 +61,12 @@ while not done:
 		system('sudo reboot')
 	ip = getIP()
 	#ping = system('ping -c 1 60.241.126.187')
-	if ip != '60.241.126.187' :
+	if ip != '60.241.126.187':
 	#and ping == 0:
 		done = True
 	else:
 		with open('/home/joakim/work/log.log', 'ab') as logFile:
-			logFile.write(ctime() + '(' + str(t) + '): System not ready. ' + 'Server not available. '*(ping!=0) + 'Proxy down. '*(ip == '60.241.126.187') + 'Sleeping for 30 seconds.\n')
+			logFile.write(ctime() + '(' + str(t) + '): System not ready. Proxy down. Sleeping for 30 seconds.\n')
 		sleep(30)	
 with open('/home/joakim/work/log.log', 'ab') as logFile:
 	logFile.write('\n' + ctime() + ': System ready. Proceeding to start supervisor.\n')
