@@ -31,16 +31,17 @@ done = False
 t = 0
 while not done:
 	t = t + 1
-	if t == 30:
-		#15 minutes already. Try bouncing it.
+	if t == 15:
+		#20 minutes already. Try bouncing it.
 		system('sudo reboot')
 	ping = system('ping -c 1 60.241.126.187')
 	if ping == 0:
 		done = True
 	else:
 		with open('/home/joakim/work/log.log', 'ab') as logFile:
-			logFile.write(ctime() + '(' + str(t) + '): No connection. Sleeping for 30 seconds.\n')
-		sleep(30)
+			logFile.write(ctime() + '(' + str(t) + '): No connection. Restarting network service and sleeping for 90 seconds.\n')
+		system('sudo service network-manager restart')
+		sleep(90)
 
 # Pull from git
 with open('/home/joakim/work/log.log', 'ab') as logFile:
