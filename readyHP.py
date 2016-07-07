@@ -51,7 +51,7 @@ gitpull = system('sudo ~/work/scraper git pull origin master')
 # Connect to VPN
 with open('/home/joakim/work/log.log', 'ab') as logFile:
 	logFile.write('\n' + ctime() + ': Pulled from git (' + str(gitpull) + '). Proceeding to connect VPN.\n')
-system('sudo /etc/openvpn/openvpn /etc/openvpn/current.ovpn')
+system('sudo bash /home/joakim/work/scraper/convpn.sh')
 done = False
 t = 0
 while not done:
