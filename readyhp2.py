@@ -21,10 +21,12 @@ def getIP(maxN=10, S=30):
 				sleep(S)
 	return(ip)
 
-with open('/home/joakim/work/log.log', 'ab') as logFile:
-	tmpStr = ctime() + ': Pulling from git'
+with open('/home/joakim/work/log.log', 'wb') as logFile:
+	tmpStr = ctime() + ': Starting ready.py'
+	statStr = '*'*len(tmpStr) + '\n' + tmpStr + '\n' + '*'*len(tmpStr) + '\n\n' 
 	logFile.write(statStr)
-system('sudo ~/work/scraper git pull origin master')
+
+
 done = False
 t = 0
 while not done:
@@ -33,15 +35,14 @@ while not done:
 		#15 minutes already. Try bouncing it.
 		system('sudo reboot')
 	ip = getIP()
-	ping = system('ping -c 1 60.241.126.187')
-	if ip != '60.241.126.187' and ping == 0:
+	if ip != '60.241.126.187' and ip is not False:
 		done = True
 	else:
 		with open('/home/joakim/work/log.log', 'ab') as logFile:
-			logFile.write(ctime() + '(' + str(t) + '): System not ready. ' + 'Server not available. '*(ping!=0) + 'Proxy down. '*(ip == '60.241.126.187') + 'Sleeping for 30 seconds.\n')
-		sleep(30)
-
+			logFile.write(ctime() + '(' + str(t) + '): System not ready. Proxy down. Sleeping for 30 seconds.\n')
+		sleep(30)	
 with open('/home/joakim/work/log.log', 'ab') as logFile:
-	logFile.write('\n' + ctime() + ': System ready. Proceeding.\n')
+	logFile.write('\n' + ctime() + ': System ready. Proceeding to start supervisor.\n')
 
-#system('gnome-terminal -x tailf ~/work/log.log')
+#Start scraping
+system('sudo ~/work/scraper/supervisord -n -c ~/work/scraper/supervisord.conf')
