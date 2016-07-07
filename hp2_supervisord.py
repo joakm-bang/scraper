@@ -23,10 +23,18 @@ def getIP(maxN=10, S=30):
 				sleep(S)
 	return(ip)
 
-with open('/home/joakim/work/startup2.log', 'wb') as logFile:
+with open('/home/joakim/work/startup2.log', 'ab') as logFile:
 	tmpStr = ctime() + ': Starting hp2.py'
 	statStr = '*'*len(tmpStr) + '\n' + tmpStr + '\n' + '*'*len(tmpStr) + '\n\n' 
 	logFile.write(statStr)
+
+with open('/home/joakim/work/startup2.log', 'ab') as logFile:
+	tmpStr = ctime() + ': Starting nap'
+	logFile.write(tmpStr)
+sleep(120)
+with open('/home/joakim/work/startup2.log', 'ab') as logFile:
+	tmpStr = ctime() + ': Waking up from nap'
+	logFile.write(tmpStr)
 
 
 done = False
@@ -55,4 +63,4 @@ while not done:
 #Start scraping
 print('Running "sudo supervisord -n -c ~/work/scraper/supervisord.conf"')
 #system('sudo bash ~/work/scraper/startscrapingHP.sh > ~/work/log.log')
-system('sudo supervisord -n -c ~/work/scraper/supervisord.conf')
+system('sudo supervisord -n -c /home/joakim/work/scraper/supervisord.conf')
