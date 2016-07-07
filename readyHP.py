@@ -22,7 +22,7 @@ def getIP(maxN=10, S=30):
 	return(ip)
 
 with open('/home/joakim/work/startup.log', 'wb') as logFile:
-	tmpStr = ctime() + ': Starting ready.py'
+	tmpStr = ctime() + ': Starting readyHP.py'
 	statStr = '*'*len(tmpStr) + '\n' + tmpStr + '\n' + '*'*len(tmpStr) + '\n\n' 
 	logFile.write(statStr)
 

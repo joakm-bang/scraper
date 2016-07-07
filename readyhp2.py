@@ -21,8 +21,8 @@ def getIP(maxN=10, S=30):
 				sleep(S)
 	return(ip)
 
-with open('/home/joakim/work/log.log', 'wb') as logFile:
-	tmpStr = ctime() + ': Starting ready.py'
+with open('/home/joakim/work/startup2.log', 'wb') as logFile:
+	tmpStr = ctime() + ': Starting readyhp2.py'
 	statStr = '*'*len(tmpStr) + '\n' + tmpStr + '\n' + '*'*len(tmpStr) + '\n\n' 
 	logFile.write(statStr)
 
@@ -38,11 +38,11 @@ while not done:
 	if ip != '60.241.126.187' and ip is not False:
 		done = True
 	else:
-		with open('/home/joakim/work/log.log', 'ab') as logFile:
+		with open('/home/joakim/work/startup2.log', 'ab') as logFile:
 			logFile.write(ctime() + '(' + str(t) + '): System not ready. Proxy down. Sleeping for 30 seconds.\n')
 		sleep(30)	
-with open('/home/joakim/work/log.log', 'ab') as logFile:
+with open('/home/joakim/work/startup2.log', 'ab') as logFile:
 	logFile.write('\n' + ctime() + ': System ready. Proceeding to start supervisor.\n')
 
 #Start scraping
-system('sudo ~/work/scraper/supervisord -n -c ~/work/scraper/supervisord.conf')
+system('sudo supervisord -n -c ~/work/scraper/supervisord.conf >> ~/work/log.log')
