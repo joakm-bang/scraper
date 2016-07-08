@@ -93,6 +93,7 @@ class Settings:
 			self.scrapeLogs = True			
 			self.ll = 2400001
 			self.ul = 2500000
+		
 
 		elif self.computer == 'toshiban':   # Toshiban (month, , [100 001, 200 000])
 			self.scrapeMonths = True
@@ -1929,6 +1930,8 @@ class LogPage:
 					else:
 						inputlogs = li.findAll('input', {'class':'inputlog'})
 						for inputlog in inputlogs:
+							if inputlog['value'] == '':
+								inputlog['value'] = 0
 							self.workouts[n]['sets'][0][inputlog['name']] = int(inputlog['value'])
 						dmpnum = self.workouts[n]['sets'][0]['hour']*60**2 + \
 							self.workouts[n]['sets'][0]['min']*60 + \
