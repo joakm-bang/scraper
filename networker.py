@@ -1,6 +1,8 @@
 from os import system
 from json import load
 from urllib2 import urlopen
+from time import ctime
+
 
 def getIP(maxN=5, S=30):
 	ip = False
@@ -23,3 +25,9 @@ def getIP(maxN=5, S=30):
 ip = getIP()
 if ip != '60.241.126.187':
 	system('service network-monitor restart')
+	with open('/home/joakim/work/network.log', 'ab') as logFile:
+		logFile.write(ctime() + ': Network restarted\n')
+else:
+	with open('/home/joakim/work/network.log', 'ab') as logFile:
+		logFile.write(ctime() + ': Network is fine.\n')
+	
