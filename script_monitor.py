@@ -165,6 +165,19 @@ class database:
 		raise DBerror('Fatal databse error.')
 
 
+#Check network connection
+fails = 1
+while fails > 0 and fails < 4:
+	ping = system('ping -c 1 tpg.com.au')
+	if ping == 0:
+		fails = 0
+	else:
+		fails = fails + 1
+if fails > 0:
+	with open('/home/joakim/work/restarts.log', 'ab') as logFile:
+		logFile.write(ctime() + ':\t Rebooting (bad network connection).\n')
+	system('sudo reboot')
+
 heroku = database(settings.herokuconfig)
 
 #get latest activity
