@@ -83,10 +83,11 @@ class Settings:
 			self.ll = 0
 			self.ul = 0
 			self.delayLambda = 7
-		elif self.computer == 'server':   #Server (months, , [200 001, 300 000])
+		elif self.computer == 'server':   #Server (months, even, [1 100 001, 1 300 000])
 			self.scrapeMonths = True
-			self.ll = 200001
-			self.ul = 300000
+			self.onlyEven = True
+			self.ll = 1100001
+			self.ul = 1300000
 			self.delayLambda = 5
 		elif self.computer == 'hemma':   # Hemma  (months, odd, [800 001, 900 000])
 			self.runlocal = True
@@ -193,12 +194,12 @@ class Settings:
 			self.scrapeLogs = True
 			self.ll = 3500001
 			self.ul = 3600000
-		elif self.computer == 'vbox13':   # Vbox13  (months, , [1, 200 000])
+		elif self.computer == 'vbox13':   # Vbox13  (months, , [1, 300 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeMonths = True
 			self.ll = 0
-			self.ul = 200000
+			self.ul = 300000
 		elif self.computer == 'vbox14':   # Vbox14  (logs, , [3 400 001, 3 500 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
@@ -213,9 +214,10 @@ class Settings:
 			self.ll = 1800001
 			self.ul = 4000000
 			
-		elif self.computer == 'vbox16':   # Vbox16  (month, , [1 100 001, 1 300 000])
+		elif self.computer == 'vbox16':   # Vbox16  (month, odd, [1 100 001, 1 300 000])
 			self.bannedIP = '60.241.126.187'
 			self.scrapeMonths = True
+			self.onlyEven = False
 			self.ll = 1100001
 			self.ul = 1300000
 		elif self.computer == 'vbox17':   # Vbox17  (months, , [1 500 001, 1 800 000])
