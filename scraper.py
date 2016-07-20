@@ -225,11 +225,11 @@ class Settings:
 			self.scrapeMonths = True
 			self.ll = 1500001
 			self.ul = 1800000
-		elif self.computer == 'vbox18':   # Vbox18  (months, , [500 001, 600 000])
+		elif self.computer == 'vbox18':   # Vbox18  (logs, , [4 000 001, 4 100 000])
 			self.bannedIP = '60.241.126.187'
-			self.scrapeMonths = True
-			self.ll = 500001
-			self.ul = 600000
+			self.scrapeLogs = True
+			self.ll = 4000001
+			self.ul = 4100000
 		elif self.computer == 'vbox19':   # Vbox19  (months, even, [300 001, 400 000])
 			self.bannedIP = '60.241.126.187'
 			self.scrapeMonths = True
