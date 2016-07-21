@@ -165,11 +165,10 @@ class Settings:
 			self.ll = 3900001
 			self.ul = 4000000
 
-		elif self.computer == 'vbox9':   # Vbox9  (months, even, [1 800 000, 4 000 000])
+		elif self.computer == 'vbox9':   # Vbox9  (months, , [1 800 000, 4 000 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeMonths = True
-			self.onlyEven = True
 			self.ll = 1800001
 			self.ul = 4000000
 		elif self.computer == 'vbox10':   # Vbox10  (months, odd, [400 001, 500 000])
@@ -203,13 +202,12 @@ class Settings:
 			self.scrapeLogs = True
 			self.ll = 3700001
 			self.ul = 3800000
-		elif self.computer == 'vbox15':   # Vbox15  (month, odd, [1 800 001, 4 000 000])
+		elif self.computer == 'vbox15':   # Vbox15  (logs, odd, [4 900 001, 5 000 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
-			self.scrapeMonths = True
-			self.onlyEven = False
-			self.ll = 1800001
-			self.ul = 4000000
+			self.scrapeLogs = True
+			self.ll = 4900001
+			self.ul = 5000000
 			
 		elif self.computer == 'vbox16':   # Vbox16  (logs, , [4 800 001, 4 900 000])
 			self.bannedIP = '60.241.126.187'
