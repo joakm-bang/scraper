@@ -96,10 +96,10 @@ class Settings:
 			self.ul = 4200000
 		
 
-		elif self.computer == 'toshiban':   # Toshiban (month, , [700 001, 1 300 000])
+		elif self.computer == 'toshiban':   # Toshiban (month, , [700 001, 10 000 000])
 			self.scrapeMonths = True
 			self.ll = 700001
-			self.ul = 1300000
+			self.ul = 10000000
 		elif self.computer == 'litenvit':   # Liten vit (logs, , [900 001, 3 000 000])
 			self.runLAN = True
 			self.scrapeLogs = True
@@ -209,16 +209,18 @@ class Settings:
 			self.ll = 4900001
 			self.ul = 5000000
 			
-		elif self.computer == 'vbox16':   # Vbox16  (logs, , [4 800 001, 4 900 000])
+		elif self.computer == 'vbox16':   # Vbox16  (logs, even, [4 800 001, 4 900 000])
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
+			self.onlyEven = True
 			self.ll = 4800001
 			self.ul = 4900000
-		elif self.computer == 'vbox17':   # Vbox17  (months, , [1 500 001, 1 800 000])
+		elif self.computer == 'vbox17':   # Vbox17  (logs, odd, [4 800 001, 4 900 000])
 			self.bannedIP = '60.241.126.187'
-			self.scrapeMonths = True
-			self.ll = 1500001
-			self.ul = 1800000
+			self.scrapeLogs = True
+			self.onlyEven = False
+			self.ll = 4800001
+			self.ul = 4900000
 		elif self.computer == 'vbox18':   # Vbox18  (logs, , [4 000 001, 4 100 000])
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
