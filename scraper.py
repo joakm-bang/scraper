@@ -102,17 +102,19 @@ class Settings:
 			self.onlyEven = False
 			self.ll = 4400001
 			self.ul = 4500000
-		elif self.computer == 'litenvit':   # Liten vit (logs, , [900 001, 3 000 000])
+		elif self.computer == 'litenvit':   # Liten vit Garderoben (logs, even, [5 100 001, 5 200 000])
 			self.runLAN = True
 			self.scrapeLogs = True
-			self.ll = 900001
-			self.ul = 3000000
+			self.onlyEven = True
+			self.ll = 5100001
+			self.ul = 5200000
 			self.bannedIP = '60.241.126.187'
-		elif self.computer == 'garderoben':   # Garderoben (month, , [1 200 001, 1 500 000])
+		elif self.computer == 'garderoben':   # Garderoben (logs, odd, [5 100 001, 5 200 000])
 			self.runLAN = True
-			self.scrapeMonths = True
-			self.ll = 1300001
-			self.ul = 1500000
+			self.scrapeLogs = True
+			self.onlyEven = False
+			self.ll = 5100001
+			self.ul = 5200000
 			self.bannedIP = '60.241.126.187'
 		#VBOXES
 		elif self.computer == 'vbox1':   # Vbox1  (logs, odd, [4 500 001, 4 600 000])
