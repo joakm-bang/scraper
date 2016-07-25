@@ -83,8 +83,9 @@ class Settings:
 			self.ll = 0
 			self.ul = 0
 			self.delayLambda = 7
-		elif self.computer == 'server':   #Server (logs, , [4 400 001, 4 500 000])
+		elif self.computer == 'server':   #Server (logs, even, [4 400 001, 4 500 000])
 			self.scrapeLogs = True
+			self.onlyEven = True
 			self.ll = 4400001
 			self.ul = 4500000
 			self.delayLambda = 5
@@ -96,10 +97,11 @@ class Settings:
 			self.ul = 4200000
 		
 
-		elif self.computer == 'toshiban':   # Toshiban (month, , [0, 10 000 000])
-			self.scrapeMonths = True
-			self.ll = 0
-			self.ul = 10000000
+		elif self.computer == 'toshiban':   # Toshiban (logs, odd, [4 400 001, 4 500 000])
+			self.scrapeLogs = True
+			self.onlyEven = False
+			self.ll = 4400001
+			self.ul = 4500000
 		elif self.computer == 'litenvit':   # Liten vit (logs, , [900 001, 3 000 000])
 			self.runLAN = True
 			self.scrapeLogs = True
