@@ -93,8 +93,8 @@ class Settings:
 			self.runlocal = True
 			self.scrapeLogs = True
 			self.onlyEven = False
-			self.ll = 4100001
-			self.ul = 4200000
+			self.ll = 0
+			self.ul = 0
 		
 
 		elif self.computer == 'toshiban':   # Toshiban (logs, odd, [4 400 001, 4 500 000])
@@ -106,15 +106,15 @@ class Settings:
 			self.runLAN = True
 			self.scrapeLogs = True
 			self.onlyEven = True
-			self.ll = 5100001
-			self.ul = 5200000
+			self.ll = 4100001
+			self.ul = 4200000
 			self.bannedIP = '60.241.126.187'
 		elif self.computer == 'garderoben':   # Garderoben (logs, odd, [5 100 001, 5 200 000])
 			self.runLAN = True
 			self.scrapeLogs = True
 			self.onlyEven = False
-			self.ll = 5100001
-			self.ul = 5200000
+			self.ll = 4100001
+			self.ul = 4200000
 			self.bannedIP = '60.241.126.187'
 		#VBOXES
 		elif self.computer == 'vbox1':   # Vbox1  (logs, odd, [4 500 001, 4 600 000])
