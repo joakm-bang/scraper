@@ -105,15 +105,15 @@ class Settings:
 		elif self.computer == 'litenvit':   # Liten vit Garderoben (logs, even, [5 100 001, 5 200 000])
 			self.runLAN = True
 			self.scrapeLogs = True
-			self.onlyEven = True
+			#self.onlyEven = True
 			self.ll = 4100001
-			self.ul = 4200000
+			self.ul = 4150000
 			self.bannedIP = '60.241.126.187'
 		elif self.computer == 'garderoben':   # Garderoben (logs, odd, [5 100 001, 5 200 000])
 			self.runLAN = True
 			self.scrapeLogs = True
-			self.onlyEven = False
-			self.ll = 4100001
+			#self.onlyEven = False
+			self.ll = 4150001
 			self.ul = 4200000
 			self.bannedIP = '60.241.126.187'
 		#VBOXES
