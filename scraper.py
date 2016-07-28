@@ -131,13 +131,13 @@ class Settings:
 			self.onlyEven = False
 			self.ll = 4600001
 			self.ul = 4700000
-		elif self.computer == 'vbox3':   # Vbox3  (logs, odd, [3 800 001, 3 900 000])
+		elif self.computer == 'vbox3':   # Vbox3  (logs, odd, [4 000 001, 4 100 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			self.onlyEven = False
-			self.ll = 3800001
-			self.ul = 3900000
+			self.ll = 4000001
+			self.ul = 4100000
 		elif self.computer == 'vbox4':   # Vbox4  (logs, even, [4 500 001, 4 600 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
@@ -152,13 +152,13 @@ class Settings:
 			self.onlyEven = True
 			self.ll = 4600001
 			self.ul = 4700000
-		elif self.computer == 'vbox6':   # Vbox6  (logs, even, [3 800 001, 3 900 000])
+		elif self.computer == 'vbox6':   # Vbox6  (logs, even, [4 300 001, 4 400 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			self.onlyEven = True
-			self.ll = 3800001
-			self.ul = 3900000
+			self.ll = 4300001
+			self.ul = 4400000
 
 		elif self.computer == 'vbox7':   # Vbox7  (logs, even, [4 700 001, 4 800 000])
 			self.runLAN = True
@@ -233,15 +233,17 @@ class Settings:
 			self.onlyEven = False
 			self.ll = 4800001
 			self.ul = 4900000
-		elif self.computer == 'vbox18':   # Vbox18  (logs, , [4 000 001, 4 100 000])
-			self.bannedIP = '60.241.126.187'
-			self.scrapeLogs = True
-			self.ll = 4000001
-			self.ul = 4100000
-		elif self.computer == 'vbox19':   # Vbox19  (logs, , [4 300 001, 4 400 000])
+		elif self.computer == 'vbox18':   # Vbox18  (logs, even, [4 000 001, 4 100 000])
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			self.onlyEven = True
+			self.ll = 4000001
+			self.ul = 4100000
+		elif self.computer == 'vbox19':   # Vbox19  (logs, odd, [4 300 001, 4 400 000])
+			self.bannedIP = '60.241.126.187'
+			self.scrapeLogs = True
+			self.onlyEven = True
+			self.onlyEven = False
 			self.ll = 4300001
 			self.ul = 4400000
 		elif self.computer == 'vbox20':   # Vbox20  (logs, even, [5 000 001, 5 100 000])
