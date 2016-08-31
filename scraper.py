@@ -117,13 +117,13 @@ class Settings:
 			self.ul = 4200000
 			self.bannedIP = '60.241.126.187'
 		#VBOXES
-		elif self.computer == 'vbox1':   # Vbox1  (logs, odd, [4 500 001, 4 600 000])
+		elif self.computer == 'vbox1':   # Vbox1  (logs, , [4 500 001, 4 600 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			#self.onlyEven = False
-			self.ll = 4500001
-			self.ul = 4600000
+			self.ll = 4000001
+			self.ul = 4805000
 		elif self.computer == 'vbox2':   # Vbox2  (logs, odd, [4 600 001, 4 700 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
