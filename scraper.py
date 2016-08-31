@@ -157,8 +157,8 @@ class Settings:
 			self.bannedIP = '60.241.126.187'
 			self.scrapeLogs = True
 			#self.onlyEven = True
-			self.ll = 4825001
-			self.ul = 4950000
+			self.ll = 1
+			self.ul = 5000000
 
 		elif self.computer == 'vbox7':   # Vbox7  (logs, even, [4 700 001, 4 800 000])
 			self.runLAN = True
