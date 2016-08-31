@@ -10,7 +10,7 @@ def getIP(maxN=10, S=30):
 	while n < maxN and goon:
 		try:
 			n = n + 1
-			ip = load(urlopen('https://api.ipify.org?format=json'))['ip']
+			ip = load(urlopen('http://api.ipify.org?format=json'))['ip']
 			goon = False
 		except:
 			try:
