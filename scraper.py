@@ -270,7 +270,7 @@ class Settings:
 		if self.runlocal:
 			self.dbconfig[u'host'] = 'localhost'
 		elif self.runLAN:
-			self.dbconfig[u'host'] = u'192.168.0.2'
+			self.dbconfig[u'host'] = u'192.168.0.168'
 		else:
 			self.dbconfig[u'host'] = u'60.241.126.187'
 
