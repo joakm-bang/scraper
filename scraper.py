@@ -1304,7 +1304,7 @@ class browser:
 		while n < maxN and goon:
 			try:
 				n = n + 1
-				self.ip = load(urlopen('https://api.ipify.org?format=json'))['ip']
+				self.ip = load(urlopen('http://api.ipify.org?format=json'))['ip']
 				goon = False
 			except:
 				try:
