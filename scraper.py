@@ -117,6 +117,14 @@ class Settings:
 			self.ll = 4150001
 			self.ul = 4200000
 			self.bannedIP = '60.241.126.187'
+		elif self.computer == 'monstret':   # Monstret  (fixinfo, , [0, 5 000 000])
+			self.debug = True
+			self.dropboxPath = '/media/joakim/Storage/Dropbox/'
+			self.runlocal = True
+			self.fixInfo = True
+			#self.onlyEven = False
+			self.ll = 0
+			self.ul = 5000000		
 		#VBOXES
 		elif self.computer == 'vbox1':   # Vbox1  (logs, , [4 500 001, 4 600 000])
 			self.runLAN = True
@@ -630,7 +638,7 @@ class database:
 						sel[0], 
 						sel[1], 
 						"'"*isString, 
-						str(sel[2]), 
+					    str(sel[2]) if sel[2] is not None else 'Null',
 						"'"*isString, 
 						' AND '*(i<len(self.sels)-1))
 
@@ -2396,7 +2404,7 @@ class FixQueue:
 	def refill(self):
 		self.queue = db.getSubset(('userid'), 
 		                          'fix_userinfo', 
-		                          sels=[('userid', '!=', 'userid_id'),
+		                          sels=[('userid_id', 'is', None),
 		                                ('userid', '<', self.ul), ('userid', '>', self.ll)], 
 		                          onlyEven=self.onlyEven, 
 		                          limit=self.limit)
@@ -2429,7 +2437,7 @@ class FixQueue:
 if settings.fixInfo:
 
 	#queue
-	Q = fixQueue(only_new_users=True, onlyEven=settings.onlyEven, ul=settings.ul, ll=settings.ll)
+	Q = FixQueue(only_new_users=True, onlyEven=settings.onlyEven, ul=settings.ul, ll=settings.ll)
 
 	t = datetime.now()
 	while not Q.isempty():
@@ -2444,23 +2452,15 @@ if settings.fixInfo:
 		soup = br.tryPage('https://www.jefit.com/' + str(user),soup=True)
 		if soup.find('title').text[:15] == 'JEFIT Community':
 			db.updateField(tables.users, 'scraped', True, 'userid', user)
+			db.updateField('fix_userinfo', 'userid_id', user, 'userid', user, commit=True)			
 			continue
-		profile = ProfilePage(soup, user=user, addFriends=True)
-
-		#write new friends
-		profile.writeNewFriends()
-
-		#write new friends
-		fs = []
-		for f in friends:
-			fs.append((user, f))
-		db.insertMany(tables.friends, ('user1', 'user2'), fs)
+		profile = ProfilePage(soup, user=user, addFriends=False)
 
 		#write userinfo
 		profile.writeUserInfo(commit=False)
 
 		#don't scrape again for now
-		db.updateField('fix_userinfo', 'userid_id', user, 'userid', user, commit=False)
+		db.updateField('fix_userinfo', 'userid_id', user, 'userid', user, commit=True)
 		
 		if Q.isempty():
 			Q.refill()
