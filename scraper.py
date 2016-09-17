@@ -64,6 +64,7 @@ class Settings:
 		self.scrapeMonths = False
 		self.scrapeLogs = False
 		self.fillMonths = False
+		self.fixInfo = False
 		self.onlyEven = None
 		self.chkFreq = 60*10
 		self.iterations = 0
@@ -119,18 +120,18 @@ class Settings:
 		#VBOXES
 		elif self.computer == 'vbox1':   # Vbox1  (logs, , [4 500 001, 4 600 000])
 			self.runLAN = True
-			self.bannedIP = '60.241.126.187'
-			self.scrapeLogs = True
-			#self.onlyEven = False
-			self.ll = 4000001
-			self.ul = 4805000
+			self.bannedIP = '73.170.245.33'
+			self.fixInfo = True
+			self.onlyEven = False
+			self.ll = 0
+			self.ul = 5000000
 		elif self.computer == 'vbox2':   # Vbox2  (logs, odd, [4 600 001, 4 700 000])
 			self.runLAN = True
-			self.bannedIP = '60.241.126.187'
-			self.scrapeLogs = True
-			#self.onlyEven = False
-			self.ll = 4805001
-			self.ul = 4810000
+			self.bannedIP = '73.170.245.33'
+			self.fixInfo = True
+			self.onlyEven = True
+			self.ll = 0
+			self.ul = 5000000
 		elif self.computer == 'vbox3':   # Vbox3  (logs, odd, [4 000 001, 4 100 000])
 			self.runLAN = True
 			self.bannedIP = '60.241.126.187'
@@ -2379,6 +2380,94 @@ if settings.scrapeLogs:
 		print(' Scraped log ' + str(logid) + ' at ' + datetime.ctime(datetime.now()))
 		print('Iteration took ' + str(datetime.now()-t) + '\n'*timeMe)
 		t = datetime.now()
+
+
+#db.close() #close database connection
+
+class FixQueue:
+	#----------------------------------------------------------------------
+	def __init__(self, only_new_users=True, onlyEven=None, ul=None, ll=None, limit=50000):
+		self.onlyEven = onlyEven
+		self.limit = limit
+		self.ul = ul
+		self.ll = ll
+		self.refill()
+
+	def refill(self):
+		self.queue = db.getSubset(('userid'), 
+		                          'fix_userinfo', 
+		                          sels=[('userid', '!=', 'userid_id'),
+		                                ('userid', '<', self.ul), ('userid', '>', self.ll)], 
+		                          onlyEven=self.onlyEven, 
+		                          limit=self.limit)
+
+	def __call__(self):
+		return self.queue
+
+	def len(self):
+		return len(self.queue)
+
+	def pop(self, n=-1):
+		try:
+			return self.queue.pop(n)
+		except:
+			if isinstance(self.queue, tuple) and len(self.queue) == 2:
+				x = self.queue[:]
+				self.queue = []
+				return(x)
+			raise TypeError('Cannot pop')		
+
+
+	def isempty(self):
+		if self.len() == 0:
+			return True
+		else:
+			return False	
+
+
+
+if settings.fixInfo:
+
+	#queue
+	Q = fixQueue(only_new_users=True, onlyEven=settings.onlyEven, ul=settings.ul, ll=settings.ll)
+
+	t = datetime.now()
+	while not Q.isempty():
+
+		# get next user
+		s = datetime.now()
+		user = Q.pop()
+		if timeMe: s = timeIt(s, 'Popped new user:\t{0}'.format(str(user)))
+
+
+		#hit profile page
+		soup = br.tryPage('https://www.jefit.com/' + str(user),soup=True)
+		if soup.find('title').text[:15] == 'JEFIT Community':
+			db.updateField(tables.users, 'scraped', True, 'userid', user)
+			continue
+		profile = ProfilePage(soup, user=user, addFriends=True)
+
+		#write new friends
+		profile.writeNewFriends()
+
+		#write new friends
+		fs = []
+		for f in friends:
+			fs.append((user, f))
+		db.insertMany(tables.friends, ('user1', 'user2'), fs)
+
+		#write userinfo
+		profile.writeUserInfo(commit=False)
+
+		#don't scrape again for now
+		db.updateField('fix_userinfo', 'userid_id', user, 'userid', user, commit=False)
+		
+		if Q.isempty():
+			Q.refill()
+
+
+
+
 
 
 db.close() #close database connection
