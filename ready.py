@@ -33,8 +33,8 @@ while not done:
 		#15 minutes already. Try bouncing it.
 		system('sudo reboot')
 	ip = getIP()
-	ping = system('ping -c 1 192.168.0.168')
-	if ip != '60.241.126.187' and ping == 0:
+	ping = system('ping -c 1 192.168.0.15')
+	if ip != '73.170.245.33' and ping == 0:
 		done = True
 	else:
 		with open('/home/joakim/work/log.log', 'ab') as logFile:
