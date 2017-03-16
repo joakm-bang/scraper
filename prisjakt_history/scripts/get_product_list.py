@@ -1,6 +1,6 @@
 from __future__ import division
 try:
-	from from BeautifulSoup4 import BeautifulSoup
+	from BeautifulSoup4 import BeautifulSoup
 	from bs4 import BeautifulSoup
 	from BeautifulSoup import BeautifulSoup
 except:
