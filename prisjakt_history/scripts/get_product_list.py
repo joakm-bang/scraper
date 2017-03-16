@@ -1,6 +1,10 @@
 from __future__ import division
-#from bs4 import BeautifulSoup
-from BeautifulSoup import BeautifulSoup
+try:
+	from from BeautifulSoup4 import BeautifulSoup
+	from bs4 import BeautifulSoup
+	from BeautifulSoup import BeautifulSoup
+except:
+	pass
 from time import sleep
 from datetime import datetime, timedelta
 import requests
